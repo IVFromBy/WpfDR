@@ -6,7 +6,21 @@
         xmlns:local="clr-namespace:WpfDR"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="Файл">
+                <MenuItem Name="miLoad" Header="Загрузить" Click="miLoad_Click"/>
+                <Separator/>
+                <MenuItem Header="Выход"/>
+            </MenuItem>
+        </Menu>
+        <ListView x:Name="ListViewPeople">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="mid" Width="100" DisplayMemberBinding="{Binding Path=MId}"/>
 
-    </Grid>
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </DockPanel>
 </Window>
