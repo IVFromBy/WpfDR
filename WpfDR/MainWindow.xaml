@@ -3,24 +3,66 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WpfDR"
+        xmlns:local="clr-namespace:WpfDR"    
+        xmlns:wh="clr-namespace:WpfDR.ViewModels"            
         mc:Ignorable="d"
+        DataContext="{Binding MainWindowModel, Source={StaticResource Locator}}"
         Title="MainWindow" Height="450" Width="800">
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="Файл">
-                <MenuItem Name="miLoad" Header="Загрузить" Click="miLoad_Click"/>
+                <MenuItem Name="miLoad" Header="Загрузить" Command="{Binding LoadFile}"/>
                 <Separator/>
-                <MenuItem Header="Выход"/>
+                <MenuItem Header="Выход" Command="{StaticResource CloseAppCommand}"/>
             </MenuItem>
         </Menu>
-        <ListView x:Name="ListViewPeople">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="mid" Width="100" DisplayMemberBinding="{Binding Path=MId}"/>
+        <StatusBar DockPanel.Dock="Bottom" Height="20">
+            <StatusBarItem  DockPanel.Dock="Right">
+                <ResizeGrip/>
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text="{Binding Status}"/>
+            </StatusBarItem>
+        </StatusBar>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <DataGrid ItemsSource="{Binding MailItems}" 
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          SelectedItem="{Binding SelectedMail}"
+                          AlternatingRowBackground="#4C10F9EF"
+                      Grid.Column="0">
+                <DataGrid.CellStyle>
+                    <Style TargetType="{x:Type DataGridCell}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsEndOfFile}" Value="True">
+                                <Setter Property="Background" Value="#4CEE0A0A" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.CellStyle>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="MID" Binding="{Binding MID}"/>
+                    <DataGridTextColumn Header="Тема" Binding="{Binding Subject}"/>
+                    <DataGridTextColumn Header="Дата" Binding="{Binding DateCreate, StringFormat=dd-MM-yyyy}"/>
+                    <DataGridTextColumn Header="Тело письма повреждено" Binding="{Binding IsEndOfFile}" Width="*"/>
 
-                </GridView>
-            </ListView.View>
-        </ListView>
+                </DataGrid.Columns>
+            </DataGrid>
+            <GridSplitter Grid.Column="1" ShowsPreview="False" Width="5" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="#FF0FF18B" />
+            <TabControl Grid.Column="2">
+                <TabItem Header="Содержимое письма">
+                    <WebBrowser  wh:WebBrowserHelper.Body ="{Binding SelectedMail.Content}"/>
+                </TabItem>
+                <TabItem Header="Остальные значения письма">
+                    
+                </TabItem>
+            </TabControl>
+        </Grid>
+
     </DockPanel>
 </Window>

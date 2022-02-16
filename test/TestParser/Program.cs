@@ -101,7 +101,8 @@ namespace TestParser
                                         isRead: Convert.ToInt32(data[17]),
                                         content: contentBody,
                                         num: num,
-                                        msgCategory: msgCategory
+                                        msgCategory: msgCategory,
+                                        isEndOfFile:isEndofFile
                                         );
 
         }
