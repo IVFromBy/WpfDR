@@ -2,9 +2,14 @@
 
 
 namespace WpfDR.Model
-{    
+{
     public class MailItem
     {
+        public MailItem()
+        {
+
+        }
+
         public MailItem(string mID, int idFolder, DateTime dateCreate, string subject, string fromAbonent, string replyTo, string toAbonent
             , DateTime? dateRecive, DateTime? dateRead, int pA, int receipt, DateTime? dateReceipt, int? idReceipt, int typeMessage
             , DateTime? dateSend, int idAbonent, int priority, int isRead, string content, int num, int msgCategory, bool isEndOfFile)
@@ -32,14 +37,10 @@ namespace WpfDR.Model
             MsgCategory = msgCategory;
             IsEndOfFile = isEndOfFile;
         }
-        public MailItem()
-        {
 
-        }
-     
-        
+
         public string MID { get; init; }
-        public int IdFolder { get; init; }        
+        public int IdFolder { get; init; }
         public DateTime DateCreate { get; init; }
         public string Subject { get; init; }
         public string FromAbonent { get; init; }

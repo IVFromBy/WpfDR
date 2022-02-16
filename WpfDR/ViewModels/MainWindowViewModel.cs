@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Windows.Input;
@@ -18,6 +19,8 @@ namespace WpfDR.ViewModels
         private ParserService _Parser;
         public ObservableCollection<MailItem> MailItems { get; } = new();
 
+        private double _parseProgress;
+        public double ParseProgress { get => _parseProgress; set => Set(ref _parseProgress, value); }
 
         public MainWindowViewModel(ParserService parser)
         {
@@ -28,7 +31,7 @@ namespace WpfDR.ViewModels
 
         public MailItem SelectedMail { get => _SelectedMail; set => Set(ref _SelectedMail, value); }
 
-        private void OnLoadFile(object o)
+        private async void OnLoadFile(object o)
         {
             var openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "CSV файл|*.csv";
@@ -45,12 +48,17 @@ namespace WpfDR.ViewModels
                     fstream.Read(array, 0, array.Length);
                     // декодируем байты в строку файл строго UTF8
                     string textFromFile = System.Text.Encoding.UTF8.GetString(array);
-                    var res = _Parser.ParseTextFile(textFromFile);
+
+                    var progress = new Progress<double>(p => ParseProgress = p);
+
+                    var res = await _Parser.ParseTextFileAsync(textFromFile, progress);
                     foreach (MailItem item in res)
                         MailItems.Add(item);
                     SelectedMail = MailItems.FirstOrDefault();
                 }
             }
+            
+            ParseProgress = 0;
 
             Status = $"загружено {MailItems.Count}";
         }
@@ -67,7 +75,7 @@ namespace WpfDR.ViewModels
 
         private void OnRefreshBrowser(object o)
         {
-            
+
         }
 
     }

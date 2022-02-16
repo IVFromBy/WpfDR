@@ -20,6 +20,9 @@
             <StatusBarItem  DockPanel.Dock="Right">
                 <ResizeGrip/>
             </StatusBarItem>
+            <StatusBarItem DockPanel.Dock="Right" Width="auto">
+                <ProgressBar HorizontalAlignment="Center" Width="600" Height="13" Maximum="1" Value="{Binding ParseProgress}"/>
+            </StatusBarItem>
             <StatusBarItem>
                 <TextBlock Text="{Binding Status}"/>
             </StatusBarItem>
@@ -46,17 +49,21 @@
                     </Style>
                 </DataGrid.CellStyle>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="MID" Binding="{Binding MID}"/>
+                    <DataGridTextColumn Header="Отправитель" Binding="{Binding FromAbonent}"/>
                     <DataGridTextColumn Header="Тема" Binding="{Binding Subject}"/>
                     <DataGridTextColumn Header="Дата" Binding="{Binding DateCreate, StringFormat=dd-MM-yyyy}"/>
-                    <DataGridTextColumn Header="Тело письма повреждено" Binding="{Binding IsEndOfFile}" Width="*"/>
+                    <DataGridTextColumn Header="Получатель" Binding="{Binding ToAbonent}" MaxWidth="100"/>
+                    <DataGridTextColumn Header="Тело письма повреждено" Binding="{Binding IsEndOfFile}" MinWidth="20" Width="*"/>
 
                 </DataGrid.Columns>
             </DataGrid>
-            <GridSplitter Grid.Column="1" ShowsPreview="False" Width="5" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="#FF0FF18B" />
+            <GridSplitter Grid.Column="1" ShowsPreview="False" Width="5" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="LightGray" />
             <TabControl Grid.Column="2">
                 <TabItem Header="Содержимое письма">
                     <WebBrowser  wh:WebBrowserHelper.Body ="{Binding SelectedMail.Content}"/>
+                </TabItem>
+                <TabItem Header="Исходный код сожержимого письма">
+                    <TextBox Text="{Binding SelectedMail.Content}" TextWrapping="Wrap"/>
                 </TabItem>
                 <TabItem Header="Остальные значения письма">
                     

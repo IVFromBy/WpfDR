@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using WpfDR.Model;
 
 namespace WpfDR.Service
 {
     public class ParserService
-    {
+    {  //Шаблон регулярки, которая находин уникальную свяку трёх первых полей записи
+        private string regExpPattern = @"(([\d\w]{4,})+\t\d\t(\d{2}.\d{2}.\d{4}))";
 
         public List<MailItem> ParseTextFile(string textFile)
         {
-            // регулярка, которая находин уникальную свяку трёх первых полей записи
-            Regex regex = new Regex(@"(([\d\w]{4,})+\t\d\t(\d{2}.\d{2}.\d{4}))", RegexOptions.Singleline);
+            Regex regex = new Regex(regExpPattern, RegexOptions.Singleline);
             var matches = regex.Matches(textFile);
 
             var resList = new List<MailItem>();
@@ -24,6 +26,29 @@ namespace WpfDR.Service
                 resList.Add(ParseBody(textFile.Substring(m.Index, nextV.Success ? nextV.Index - m.Index : textFile.Length - m.Index)));
             }
 
+            return resList;
+        }
+
+        public async Task<List<MailItem>> ParseTextFileAsync(string textFile, IProgress<double> Progress = null, CancellationToken Cancel = default)
+        {
+            Regex regex = new Regex(regExpPattern, RegexOptions.Singleline);
+            var matches = regex.Matches(textFile);
+            int totalMatches = matches.Count;
+
+            var resList = new List<MailItem>();
+            int i = 0;
+
+            foreach (Match m in matches)
+            { // находим следующее совпадение
+                Match nextV = m.NextMatch();
+                
+                Progress?.Report((double)i / totalMatches);
+                // передаём на детальный разбор парсером одного сообщения
+                resList.Add(await Task.Run(() => ParseBody(textFile.Substring(m.Index, nextV.Success ? nextV.Index - m.Index : textFile.Length - m.Index))));
+                i++;
+                Cancel.ThrowIfCancellationRequested();
+            }
+            Progress?.Report(1);
             return resList;
         }
 
