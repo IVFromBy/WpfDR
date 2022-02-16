@@ -51,7 +51,7 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Отправитель" Binding="{Binding FromAbonent}"/>
                     <DataGridTextColumn Header="Тема" Binding="{Binding Subject}"/>
-                    <DataGridTextColumn Header="Дата" Binding="{Binding DateCreate, StringFormat=dd-MM-yyyy}"/>
+                    <DataGridTextColumn Header="Дата" Binding="{Binding DateCreate, StringFormat=dd-MM-yyyy}" />
                     <DataGridTextColumn Header="Получатель" Binding="{Binding ToAbonent}" MaxWidth="100"/>
                     <DataGridTextColumn Header="Тело письма повреждено" Binding="{Binding IsEndOfFile}" MinWidth="20" Width="*"/>
 
@@ -66,7 +66,56 @@
                     <TextBox Text="{Binding SelectedMail.Content}" TextWrapping="Wrap"/>
                 </TabItem>
                 <TabItem Header="Остальные значения письма">
-                    
+                    <StackPanel>
+                        <StackPanel.Resources>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Margin" Value="4,0,0,0"/>
+                            </Style>
+                            <Style TargetType="TextBox">
+                                <Setter Property="Margin" Value="4,0,4,5"/>
+                            </Style>
+                        </StackPanel.Resources>
+                        <TextBlock Text="MID"/>
+                        <TextBox Text="{Binding SelectedMail.MID}"/>
+                        <TextBlock Text="ID_FOLDER"/>
+                        <TextBox Text="{Binding SelectedMail.IdFolder}"/>
+                        <TextBlock Text="DATE_CREATE"/>
+                        <TextBox Text="{Binding SelectedMail.DateCreate, StringFormat=dd-MM-yyyy}"/>
+                        <TextBlock Text="SUBJECT"/>
+                        <TextBox Text="{Binding SelectedMail.Subject}"/>
+                        <TextBlock Text="FROM_ABONENT"/>
+                        <TextBox Text="{Binding SelectedMail.FromAbonent}"/>
+                        <TextBlock Text="REPLAY_TO"/>
+                        <TextBox Text="{Binding SelectedMail.ReplyTo}"/>
+                        <TextBlock Text="TO_ABONENT"/>
+                        <TextBox Text="{Binding SelectedMail.ToAbonent}"/>
+                        <TextBlock Text="DATE_RECEIVE"/>
+                        <TextBox Text="{Binding SelectedMail.DateRecive, StringFormat=dd-MM-yyyy}"/>
+                        <TextBlock Text="DATE_READ"/>
+                        <TextBox Text="{Binding SelectedMail.DateRead, StringFormat=dd-MM-yyyy}"/>
+                        <TextBlock Text="PA"/>
+                        <TextBox Text="{Binding SelectedMail.PA}"/>
+                        <TextBlock Text="RECEIPT"/>
+                        <TextBox Text="{Binding SelectedMail.Receipt}"/>
+                        <TextBlock Text="DATE_RECEIPT"/>
+                        <TextBox Text="{Binding SelectedMail.DateReceipt, StringFormat=dd-MM-yyyy}"/>
+                        <TextBlock Text="ID_RECEIPT"/>
+                        <TextBox Text="{Binding SelectedMail.IdReceipt}"/>
+                        <TextBlock Text="TYPE_MESSAGE"/>
+                        <TextBox Text="{Binding SelectedMail.TypeMessage}"/>
+                        <TextBlock Text="DATE_SEND"/>
+                        <TextBox Text="{Binding SelectedMail.DateSend, StringFormat=dd-MM-yyyy}"/>
+                        <TextBlock Text="ID_ABONENT"/>
+                        <TextBox Text="{Binding SelectedMail.IdAbonent}"/>
+                        <TextBlock Text="PRIORITY"/>
+                        <TextBox Text="{Binding SelectedMail.Priority}"/>
+                        <TextBlock Text="IS_READ"/>
+                        <TextBox Text="{Binding SelectedMail.IsRead}"/>
+                        <TextBlock Text="Num"/>
+                        <TextBox Text="{Binding SelectedMail.Num}"/>
+                        <TextBlock Text="MSGCATEGORY"/>
+                        <TextBox Text="{Binding SelectedMail.MsgCategory}"/>
+                    </StackPanel>
                 </TabItem>
             </TabControl>
         </Grid>
