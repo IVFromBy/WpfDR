@@ -31,6 +31,10 @@ namespace WpfDR.Model
             Num = num;
             MsgCategory = msgCategory;
         }
+        public MailItem()
+        {
+
+        }
      
         //[Display]
         public string MID { get; init; }
