@@ -4,10 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfDR"    
+        xmlns:ctrl="clr-namespace:WpfDR.Controls"    
         xmlns:wh="clr-namespace:WpfDR.ViewModels"            
         mc:Ignorable="d"
         DataContext="{Binding MainWindowModel, Source={StaticResource Locator}}"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="550" Width="800">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </Window.Resources>
@@ -19,7 +20,10 @@
                 <MenuItem Header="Выход" Command="{StaticResource CloseAppCommand}"/>
             </MenuItem>
         </Menu>
-        <StatusBar DockPanel.Dock="Bottom" Height="20">
+
+        <ctrl:SearchPanel DockPanel.Dock="Top" Margin="0,0,0,5"/>
+        
+        <StatusBar DockPanel.Dock="Bottom" Height="30">
             <StatusBarItem  DockPanel.Dock="Right">
                 <ResizeGrip/>
             </StatusBarItem>
@@ -52,6 +56,14 @@
                           SelectedItem="{Binding SelectedMail}"
                           AlternatingRowBackground="#4C10F9EF"
                       Grid.Column="0">
+                <DataGrid.Resources>
+                    <Style BasedOn="{StaticResource {x:Type DataGridColumnHeader}}" TargetType="{x:Type DataGridColumnHeader}" >
+                        <Setter Property="Margin" Value="-1,-1,0,0" />
+                        <Setter Property="Height" Value="40" />
+                        <Setter Property="Width" Value="auto"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                    </Style>
+                </DataGrid.Resources>
                 <DataGrid.CellStyle>
                     <Style TargetType="{x:Type DataGridCell}">
                         <Style.Triggers>
@@ -65,9 +77,7 @@
                     <DataGridTextColumn Header="Отправитель" Binding="{Binding FromAbonent}"/>
                     <DataGridTextColumn Header="Тема" Binding="{Binding Subject}"/>
                     <DataGridTextColumn Header="Дата" Binding="{Binding DateCreate, StringFormat=dd-MM-yyyy}" />
-                    <DataGridTextColumn Header="Получатель" Binding="{Binding ToAbonent}" MaxWidth="100"/>
-                    <DataGridTextColumn Header="Тело письма повреждено" Binding="{Binding IsEndOfFile}" MinWidth="20" Width="*"/>
-
+                    <DataGridTextColumn Header="Получатель" Binding="{Binding ToAbonent}" Width="*"/>
                 </DataGrid.Columns>
             </DataGrid>
             <GridSplitter Grid.Column="1" ShowsPreview="False" Width="5" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="LightGray" />
