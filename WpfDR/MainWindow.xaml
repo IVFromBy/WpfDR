@@ -3,8 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WpfDR"    
-        xmlns:ctrl="clr-namespace:WpfDR.Controls"    
+        xmlns:local="clr-namespace:WpfDR"     
         xmlns:wh="clr-namespace:WpfDR.ViewModels"            
         mc:Ignorable="d"
         DataContext="{Binding MainWindowModel, Source={StaticResource Locator}}"
@@ -15,14 +14,48 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="Файл">
-                <MenuItem Name="miLoad" Header="Загрузить" Command="{Binding LoadFile}"/>
+                <MenuItem Name="miLoad" Header="Загрузить" Command="{Binding LoadFileCommand}"/>
                 <Separator/>
                 <MenuItem Header="Выход" Command="{StaticResource CloseAppCommand}"/>
             </MenuItem>
         </Menu>
 
-        <ctrl:SearchPanel DockPanel.Dock="Top" Margin="0,0,0,5"/>
-        
+        <GroupBox Height="auto" Header="Поисковая панель" DockPanel.Dock="Top">
+            <DockPanel VerticalAlignment="Stretch">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button Content="Поиск" Margin="5,0" Padding="45,0" Command="{Binding SearchCommand}"/>
+                    <Button Content="Сброс" Margin="5,0" Padding="45,0" Command="{Binding CancelSearchCommand}"/>
+                </StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                        </Style>
+                        <Style TargetType="TextBox">
+                            <Setter Property="Margin"  Value="4,0"/>
+                        </Style>
+                    </Grid.Resources>
+                    <TextBlock Grid.Column="0" Grid.Row="0" Text="Отправитель"/>
+                    <TextBox Grid.Column="0" Grid.Row="1" Text="{Binding SearchPhrazeSender}" />
+                    <TextBlock Grid.Column="1" Grid.Row="0" Text="Тема письма"/>
+                    <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding SearchPhrazeSubject}"/>
+                    <TextBlock Grid.Column="2" Grid.Row="0" Text="В тексте письма"/>
+                    <TextBox Grid.Column="2" Grid.Row="1" Text="{Binding SearchPhrazeContent}"/>
+                </Grid>
+
+            </DockPanel>
+        </GroupBox>
+
         <StatusBar DockPanel.Dock="Bottom" Height="30">
             <StatusBarItem  DockPanel.Dock="Right">
                 <ResizeGrip/>
@@ -50,7 +83,7 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <DataGrid ItemsSource="{Binding MailItems}" 
+            <DataGrid Name="MainGrid" ItemsSource="{Binding MailItems}" 
                           AutoGenerateColumns="False"
                           IsReadOnly="True"
                           SelectedItem="{Binding SelectedMail}"
