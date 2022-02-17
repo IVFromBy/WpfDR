@@ -19,8 +19,11 @@ namespace WpfDR.ViewModels
         private ParserService _Parser;
         public ObservableCollection<MailItem> MailItems { get; } = new();
 
-        private double _parseProgress;
-        public double ParseProgress { get => _parseProgress; set => Set(ref _parseProgress, value); }
+        private bool _ShowProgressBar = false;
+        public bool ShowProgressBar { get => _ShowProgressBar; set => Set(ref _ShowProgressBar, value); }
+
+        private double _ParseProgress;
+        public double ParseProgress { get => _ParseProgress; set => Set(ref _ParseProgress, value); }
 
         public MainWindowViewModel(ParserService parser)
         {
@@ -36,6 +39,9 @@ namespace WpfDR.ViewModels
             var openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "CSV файл|*.csv";
             Status = "Загрузуа";
+            int totalLoaded = 0;
+            int notifyDelivery = 0;
+            ShowProgressBar = true;
             if (openFileDialog.ShowDialog() == true)
             {
                 MailItems.Clear();
@@ -52,15 +58,23 @@ namespace WpfDR.ViewModels
                     var progress = new Progress<double>(p => ParseProgress = p);
 
                     var res = await _Parser.ParseTextFileAsync(textFromFile, progress);
-                    foreach (MailItem item in res)
-                        MailItems.Add(item);
+                    totalLoaded = res.Count();
+
+                    foreach (MailItem item in res.GroupBy(g => new { g.FromAbonent, g.Subject, g.DateCreate, g.Content }).Select(g => g.First()))
+                    {
+                        if (item.Subject != "Уведомление о доставке")
+                            MailItems.Add(item);
+                        else
+                            notifyDelivery++;
+                    }
                     SelectedMail = MailItems.FirstOrDefault();
                 }
             }
-            
-            ParseProgress = 0;
 
-            Status = $"загружено {MailItems.Count}";
+            ParseProgress = 0;
+            ShowProgressBar = false;
+
+            Status = $"Обработано {totalLoaded}; Удалено уведолений о доставке {notifyDelivery}; Дубликаты: {totalLoaded - notifyDelivery - MailItems.Count}; Показано {MailItems.Count}";
         }
 
         private ICommand _loadFile;

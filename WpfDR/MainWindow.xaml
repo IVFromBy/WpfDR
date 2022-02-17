@@ -8,6 +8,9 @@
         mc:Ignorable="d"
         DataContext="{Binding MainWindowModel, Source={StaticResource Locator}}"
         Title="MainWindow" Height="450" Width="800">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </Window.Resources>
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="Файл">
@@ -21,7 +24,17 @@
                 <ResizeGrip/>
             </StatusBarItem>
             <StatusBarItem DockPanel.Dock="Right" Width="auto">
-                <ProgressBar HorizontalAlignment="Center" Width="600" Height="13" Maximum="1" Value="{Binding ParseProgress}"/>
+                <ProgressBar HorizontalAlignment="Center" Width="359" Height="15" Maximum="1" 
+                             Value="{Binding ParseProgress}" Visibility="{Binding Path=ShowProgressBar, Converter={StaticResource BooleanToVisibilityConverter}}" RenderTransformOrigin="0.5,0.5">
+                    <ProgressBar.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform ScaleY="-1"/>
+                            <SkewTransform/>
+                            <RotateTransform/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </ProgressBar.RenderTransform>
+                </ProgressBar>
             </StatusBarItem>
             <StatusBarItem>
                 <TextBlock Text="{Binding Status}"/>
@@ -66,56 +79,58 @@
                     <TextBox Text="{Binding SelectedMail.Content}" TextWrapping="Wrap"/>
                 </TabItem>
                 <TabItem Header="Остальные значения письма">
-                    <StackPanel>
-                        <StackPanel.Resources>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Margin" Value="4,0,0,0"/>
-                            </Style>
-                            <Style TargetType="TextBox">
-                                <Setter Property="Margin" Value="4,0,4,5"/>
-                            </Style>
-                        </StackPanel.Resources>
-                        <TextBlock Text="MID"/>
-                        <TextBox Text="{Binding SelectedMail.MID}"/>
-                        <TextBlock Text="ID_FOLDER"/>
-                        <TextBox Text="{Binding SelectedMail.IdFolder}"/>
-                        <TextBlock Text="DATE_CREATE"/>
-                        <TextBox Text="{Binding SelectedMail.DateCreate, StringFormat=dd-MM-yyyy}"/>
-                        <TextBlock Text="SUBJECT"/>
-                        <TextBox Text="{Binding SelectedMail.Subject}"/>
-                        <TextBlock Text="FROM_ABONENT"/>
-                        <TextBox Text="{Binding SelectedMail.FromAbonent}"/>
-                        <TextBlock Text="REPLAY_TO"/>
-                        <TextBox Text="{Binding SelectedMail.ReplyTo}"/>
-                        <TextBlock Text="TO_ABONENT"/>
-                        <TextBox Text="{Binding SelectedMail.ToAbonent}"/>
-                        <TextBlock Text="DATE_RECEIVE"/>
-                        <TextBox Text="{Binding SelectedMail.DateRecive, StringFormat=dd-MM-yyyy}"/>
-                        <TextBlock Text="DATE_READ"/>
-                        <TextBox Text="{Binding SelectedMail.DateRead, StringFormat=dd-MM-yyyy}"/>
-                        <TextBlock Text="PA"/>
-                        <TextBox Text="{Binding SelectedMail.PA}"/>
-                        <TextBlock Text="RECEIPT"/>
-                        <TextBox Text="{Binding SelectedMail.Receipt}"/>
-                        <TextBlock Text="DATE_RECEIPT"/>
-                        <TextBox Text="{Binding SelectedMail.DateReceipt, StringFormat=dd-MM-yyyy}"/>
-                        <TextBlock Text="ID_RECEIPT"/>
-                        <TextBox Text="{Binding SelectedMail.IdReceipt}"/>
-                        <TextBlock Text="TYPE_MESSAGE"/>
-                        <TextBox Text="{Binding SelectedMail.TypeMessage}"/>
-                        <TextBlock Text="DATE_SEND"/>
-                        <TextBox Text="{Binding SelectedMail.DateSend, StringFormat=dd-MM-yyyy}"/>
-                        <TextBlock Text="ID_ABONENT"/>
-                        <TextBox Text="{Binding SelectedMail.IdAbonent}"/>
-                        <TextBlock Text="PRIORITY"/>
-                        <TextBox Text="{Binding SelectedMail.Priority}"/>
-                        <TextBlock Text="IS_READ"/>
-                        <TextBox Text="{Binding SelectedMail.IsRead}"/>
-                        <TextBlock Text="Num"/>
-                        <TextBox Text="{Binding SelectedMail.Num}"/>
-                        <TextBlock Text="MSGCATEGORY"/>
-                        <TextBox Text="{Binding SelectedMail.MsgCategory}"/>
-                    </StackPanel>
+                    <ScrollViewer>
+                        <StackPanel>
+                            <StackPanel.Resources>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Margin" Value="4,0,0,0"/>
+                                </Style>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="Margin" Value="4,0,4,5"/>
+                                </Style>
+                            </StackPanel.Resources>
+                            <TextBlock Text="MID"/>
+                            <TextBox Text="{Binding SelectedMail.MID}"/>
+                            <TextBlock Text="ID_FOLDER"/>
+                            <TextBox Text="{Binding SelectedMail.IdFolder}"/>
+                            <TextBlock Text="DATE_CREATE"/>
+                            <TextBox Text="{Binding SelectedMail.DateCreate, StringFormat=dd-MM-yyyy}"/>
+                            <TextBlock Text="SUBJECT"/>
+                            <TextBox Text="{Binding SelectedMail.Subject}"/>
+                            <TextBlock Text="FROM_ABONENT"/>
+                            <TextBox Text="{Binding SelectedMail.FromAbonent}"/>
+                            <TextBlock Text="REPLAY_TO"/>
+                            <TextBox Text="{Binding SelectedMail.ReplyTo}"/>
+                            <TextBlock Text="TO_ABONENT"/>
+                            <TextBox Text="{Binding SelectedMail.ToAbonent}"/>
+                            <TextBlock Text="DATE_RECEIVE"/>
+                            <TextBox Text="{Binding SelectedMail.DateRecive, StringFormat=dd-MM-yyyy}"/>
+                            <TextBlock Text="DATE_READ"/>
+                            <TextBox Text="{Binding SelectedMail.DateRead, StringFormat=dd-MM-yyyy}"/>
+                            <TextBlock Text="PA"/>
+                            <TextBox Text="{Binding SelectedMail.PA}"/>
+                            <TextBlock Text="RECEIPT"/>
+                            <TextBox Text="{Binding SelectedMail.Receipt}"/>
+                            <TextBlock Text="DATE_RECEIPT"/>
+                            <TextBox Text="{Binding SelectedMail.DateReceipt, StringFormat=dd-MM-yyyy}"/>
+                            <TextBlock Text="ID_RECEIPT"/>
+                            <TextBox Text="{Binding SelectedMail.IdReceipt}"/>
+                            <TextBlock Text="TYPE_MESSAGE"/>
+                            <TextBox Text="{Binding SelectedMail.TypeMessage}"/>
+                            <TextBlock Text="DATE_SEND"/>
+                            <TextBox Text="{Binding SelectedMail.DateSend, StringFormat=dd-MM-yyyy}"/>
+                            <TextBlock Text="ID_ABONENT"/>
+                            <TextBox Text="{Binding SelectedMail.IdAbonent}"/>
+                            <TextBlock Text="PRIORITY"/>
+                            <TextBox Text="{Binding SelectedMail.Priority}"/>
+                            <TextBlock Text="IS_READ"/>
+                            <TextBox Text="{Binding SelectedMail.IsRead}"/>
+                            <TextBlock Text="Num"/>
+                            <TextBox Text="{Binding SelectedMail.Num}"/>
+                            <TextBlock Text="MSGCATEGORY"/>
+                            <TextBox Text="{Binding SelectedMail.MsgCategory}"/>
+                        </StackPanel>
+                    </ScrollViewer>
                 </TabItem>
             </TabControl>
         </Grid>

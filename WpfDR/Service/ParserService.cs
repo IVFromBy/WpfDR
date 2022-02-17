@@ -44,7 +44,7 @@ namespace WpfDR.Service
                 
                 Progress?.Report((double)i / totalMatches);
                 // передаём на детальный разбор парсером одного сообщения
-                resList.Add(await Task.Run(() => ParseBody(textFile.Substring(m.Index, nextV.Success ? nextV.Index - m.Index : textFile.Length - m.Index))));
+                resList.Add(await Task.Run(() => ParseBody(textFile.Substring(m.Index, nextV.Success ? nextV.Index - m.Index : textFile.Length - m.Index))).ConfigureAwait(false));
                 i++;
                 Cancel.ThrowIfCancellationRequested();
             }
