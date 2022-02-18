@@ -21,6 +21,8 @@ namespace WpfDR.ViewModels
 
         public ObservableCollection<MailItem> MailItems { get; } = new();
 
+        private int totalLoaded = 0;
+        private int notifyDelivery = 0;
 
         #region Notifications
 
@@ -62,7 +64,21 @@ namespace WpfDR.ViewModels
 
         public ICommand CancelSearchCommand => _cancelSearchCommand ??= new LambdaCommand(OnCancelSearching, CanCancelSearchCommand);
 
+        private ICommand _ClearListCommand;
+        private bool CanClearListCommand(object o) => MailItems.Count() > 0;
+
+        public ICommand ClearListCommand => _ClearListCommand ??= new LambdaCommand(OnClearList, CanClearListCommand);
+
         #endregion
+
+
+        private void OnClearList(object obj)
+        {
+            totalLoaded = 0;
+            notifyDelivery = 0;
+            MailItems.Clear();
+            Status = ".";
+        }
 
         private void OnCancelSearching(object obj)
         {
@@ -96,38 +112,50 @@ namespace WpfDR.ViewModels
         private async void OnLoadFile(object o)
         {
             var openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "CSV файл|*.csv";
+            openFileDialog.Multiselect = true;
+            openFileDialog.Filter = "файлы|*.csv;*.txt";
             Status = "Загрузуа";
-            int totalLoaded = 0;
-            int notifyDelivery = 0;
             ShowProgressBar = true;
+
             if (openFileDialog.ShowDialog() == true)
             {
-                MailItems.Clear();
-
-                using (FileStream fstream = File.OpenRead(openFileDialog.FileName))
+                int FileCount = 1;
+                foreach (var fileName in openFileDialog.FileNames)
                 {
-                    // преобразуем строку в байты
-                    byte[] array = new byte[fstream.Length];
-                    // считываем данные
-                    fstream.Read(array, 0, array.Length);
-                    // декодируем байты в строку файл строго UTF8
-                    string textFromFile = System.Text.Encoding.UTF8.GetString(array);
+                    if (openFileDialog.FileNames.Count() > 1)
+                        Status = $"Загрузка файла {FileCount} из {openFileDialog.FileNames.Count()}";
 
-                    var progress = new Progress<double>(p => ParseProgress = p);
-
-                    var res = await _Parser.ParseTextFileAsync(textFromFile, progress);
-
-                    totalLoaded = res.Count();
-
-                    foreach (MailItem item in res.GroupBy(g => new { g.FromAbonent, g.Subject, g.DateCreate, g.Content }).Select(g => g.First()))
+                    using (FileStream fstream = File.OpenRead(fileName))
                     {
-                        if (item.Subject != "Уведомление о доставке")
-                            MailItems.Add(item);
-                        else
-                            notifyDelivery++;
+                        // преобразуем строку в байты
+                        byte[] array = new byte[fstream.Length];
+                        // считываем данные
+                        await fstream.ReadAsync(array, 0, array.Length).ConfigureAwait(false);
+                        // декодируем байты в строку файл строго UTF8
+                        string textFromFile = System.Text.Encoding.UTF8.GetString(array);
+
+                        var progress = new Progress<double>(p => ParseProgress = p);
+
+                        var res = await _Parser.ParseTextFileAsync(textFromFile, progress);
+
+                        totalLoaded += res.Count();
+
+                        foreach (MailItem item in res.GroupBy(g => new { g.FromAbonent, g.Subject, g.DateCreate, g.Content }).Select(g => g.First()))
+                        {
+                            if (item.Subject == "Уведомление о доставке")
+                                notifyDelivery++;
+                            else
+                            {
+                                App.Current.Dispatcher.Invoke((Action)delegate
+                                {
+                                    MailItems.Add(item);
+                                });
+
+                            }
+                        }
+                        SelectedMail = MailItems.FirstOrDefault();
                     }
-                    SelectedMail = MailItems.FirstOrDefault();
+                    FileCount++;
                 }
             }
 

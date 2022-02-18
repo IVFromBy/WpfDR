@@ -14,7 +14,8 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="Файл">
-                <MenuItem Name="miLoad" Header="Загрузить" Command="{Binding LoadFileCommand}"/>
+                <MenuItem Header="Загрузить" Command="{Binding LoadFileCommand}"/>
+                <MenuItem Header="Очистить список" Command="{Binding ClearListCommand}"/>
                 <Separator/>
                 <MenuItem Header="Выход" Command="{StaticResource CloseAppCommand}"/>
             </MenuItem>
