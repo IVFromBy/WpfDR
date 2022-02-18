@@ -7,6 +7,7 @@
         xmlns:wh="clr-namespace:WpfDR.ViewModels"            
         mc:Ignorable="d"
         DataContext="{Binding MainWindowModel, Source={StaticResource Locator}}"
+        WindowStartupLocation="CenterScreen"
         Title="MainWindow" Height="550" Width="800">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
