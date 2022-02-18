@@ -5,5 +5,6 @@ namespace WpfDR.ViewModels
     internal class ViewModelLocator
     {
         public MainWindowViewModel MainWindowModel => App.Services.GetRequiredService<MainWindowViewModel>();
+        public FileListWindowViewModel FileListWindowModel => App.Services.GetRequiredService<FileListWindowViewModel>();
     }
 }

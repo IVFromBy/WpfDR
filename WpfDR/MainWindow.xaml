@@ -7,6 +7,7 @@
         xmlns:wh="clr-namespace:WpfDR.ViewModels"            
         mc:Ignorable="d"
         DataContext="{Binding MainWindowModel, Source={StaticResource Locator}}"
+        WindowStartupLocation="CenterScreen"
         Title="MainWindow" Height="550" Width="800">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
@@ -14,7 +15,8 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="Файл">
-                <MenuItem Name="miLoad" Header="Загрузить" Command="{Binding LoadFileCommand}"/>
+                <MenuItem Header="Загрузить" Command="{Binding LoadFileCommand}"/>
+                <MenuItem Header="Очистить список" Command="{Binding ClearListCommand}"/>
                 <Separator/>
                 <MenuItem Header="Выход" Command="{StaticResource CloseAppCommand}"/>
             </MenuItem>
