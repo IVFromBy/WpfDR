@@ -12,36 +12,26 @@ namespace WpfDR.Service
     {  //Шаблон регулярки, которая находин уникальную свяку трёх первых полей записи
         private string regExpPattern = @"(([\d\w]{4,})+\t\d\t(\d{2}.\d{2}.\d{4}))";
 
-        public List<MailItem> ParseTextFile(string textFile)
-        {
-            Regex regex = new Regex(regExpPattern, RegexOptions.Singleline);
-            var matches = regex.Matches(textFile);
-
-            var resList = new List<MailItem>();
-
-            foreach (Match m in matches)
-            { // находим следующее совпадение
-                Match nextV = m.NextMatch();
-                // передаём на детальный разбор парсером одного сообщения
-                resList.Add(ParseBody(textFile.Substring(m.Index, nextV.Success ? nextV.Index - m.Index : textFile.Length - m.Index)));
-            }
-
-            return resList;
-        }
-
-        public async Task<List<MailItem>> ParseTextFileAsync(string textFile, IProgress<double> Progress = null, CancellationToken Cancel = default)
+        public async Task<List<MailItem>> ParseTextFileAsync(string textFile, IProgress<double> Progress = null,
+            CancellationToken Cancel = default, MailItem brokenMail = null)
         {
             Regex regex = new Regex(regExpPattern, RegexOptions.Singleline);
             var matches = regex.Matches(textFile);
             int totalMatches = matches.Count;
-
+            bool IsNeedFixBrokenMail = brokenMail is not null;
             var resList = new List<MailItem>();
             int i = 0;
 
             foreach (Match m in matches)
             { // находим следующее совпадение
                 Match nextV = m.NextMatch();
-                
+
+                if (IsNeedFixBrokenMail)
+                {
+                    resList.Add(await Task.Run(() => ParseBrokenBody(textFile.Substring(0,m.Index),brokenMail)).ConfigureAwait(false));
+                    IsNeedFixBrokenMail = false;
+                }
+
                 Progress?.Report((double)i / totalMatches);
                 // передаём на детальный разбор парсером одного сообщения
                 resList.Add(await Task.Run(() => ParseBody(textFile.Substring(m.Index, nextV.Success ? nextV.Index - m.Index : textFile.Length - m.Index))).ConfigureAwait(false));
@@ -65,7 +55,7 @@ namespace WpfDR.Service
             bool isEndOfFile = false;
             // получаем кусочек окончания тела
             var endofTheBody = inStr.Substring(bodyLength - 8, 8);
-            // Добавление кодировки только для UTF-8 в толо письма.
+            // Добавление кодировки только для UTF-8 в тело письма.
             string utf8Cod = @"<meta http-equiv='Content-Type' content='text/html;charset=UTF-8'>";
 
             try
@@ -118,5 +108,43 @@ namespace WpfDR.Service
 
 
         }
+
+        private MailItem ParseBrokenBody(string inStr, MailItem brokenMail)
+        {
+            int bodyLength = inStr.Length;
+
+            var endofTheBody = inStr.Substring(bodyLength - 8, 8);
+
+            string[] endValues = endofTheBody.Split('\t');
+
+            MailItem fixedMail = new MailItem
+            {
+                MID = brokenMail.MID,
+                IdFolder = brokenMail.IdFolder,
+                DateCreate = brokenMail.DateCreate,
+                Subject = brokenMail.Subject,
+                FromAbonent = brokenMail.FromAbonent,
+                ReplyTo = brokenMail.ReplyTo,
+                ToAbonent = brokenMail.ToAbonent,
+                DateRecive = brokenMail.DateRecive,
+                DateRead = brokenMail.DateRead,
+                PA = brokenMail.PA,
+                Receipt = brokenMail.Receipt,
+                DateReceipt = brokenMail.DateReceipt,
+                IdReceipt = brokenMail.IdReceipt,
+                TypeMessage = brokenMail.TypeMessage,
+                DateSend = brokenMail.DateSend,
+                IdAbonent = brokenMail.IdAbonent,
+                Priority = brokenMail.Priority,
+                IsRead = brokenMail.IsRead,
+                Content = string.Concat(brokenMail.Content, inStr.Substring(0, bodyLength - (endofTheBody.Length - endofTheBody.IndexOf('\t')))),
+                Num = Convert.ToInt32(endValues[1]),
+                MsgCategory = Convert.ToInt32(endValues[2]),
+                IsEndOfFile = false,
+            };
+            return fixedMail;
+        }
+
+
     }
 }

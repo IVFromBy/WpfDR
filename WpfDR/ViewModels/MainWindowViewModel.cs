@@ -20,6 +20,7 @@ namespace WpfDR.ViewModels
         private ICollectionView _MailItensListView { get; set; }
 
         public ObservableCollection<MailItem> MailItems { get; } = new();
+        private MailItem _BrokeMail { get; set; }
 
         private int totalLoaded = 0;
         private int notifyDelivery = 0;
@@ -136,7 +137,9 @@ namespace WpfDR.ViewModels
 
                         var progress = new Progress<double>(p => ParseProgress = p);
 
-                        var res = await _Parser.ParseTextFileAsync(textFromFile, progress);
+                        var res = await _Parser.ParseTextFileAsync(textFromFile, progress, brokenMail: _BrokeMail);
+                        
+                        _BrokeMail = null;
 
                         totalLoaded += res.Count();
 
@@ -148,7 +151,13 @@ namespace WpfDR.ViewModels
                             {
                                 App.Current.Dispatcher.Invoke((Action)delegate
                                 {
-                                    MailItems.Add(item);
+                                    if (item.IsEndOfFile)
+                                    {
+                                        _BrokeMail = item;
+                                        totalLoaded--;
+                                    }
+                                    else
+                                        MailItems.Add(item);
                                 });
 
                             }
