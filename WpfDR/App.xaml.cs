@@ -27,6 +27,7 @@ namespace WpfDR
         private static void ConfigureServices(HostBuilderContext host, IServiceCollection services)
         {
             services.AddSingleton<MainWindowViewModel>();
+            services.AddSingleton<FileListWindowViewModel>();
             services.AddSingleton<ParserService>();
         }
     }

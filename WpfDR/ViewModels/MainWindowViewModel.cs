@@ -3,13 +3,14 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
 using WpfDR.Commands;
 using WpfDR.Model;
 using WpfDR.Service;
+using WpfDR.View;
 using WpfDR.ViewModels.Base;
-//using System.Windows.Data.Binding;
 
 namespace WpfDR.ViewModels
 {
@@ -17,10 +18,12 @@ namespace WpfDR.ViewModels
     {
 
         private ParserService _Parser;
-        private ICollectionView _MailItensListView { get; set; }
+        private FileListWindowViewModel _FlWin;
+
+        private ICollectionView _MailItemsListView { get; set; }
 
         public ObservableCollection<MailItem> MailItems { get; } = new();
-        private MailItem _BrokeMail { get; set; }
+        private MailItem _BrokeMaill { get; set; }
 
         private int totalLoaded = 0;
         private int notifyDelivery = 0;
@@ -70,6 +73,16 @@ namespace WpfDR.ViewModels
 
         public ICommand ClearListCommand => _ClearListCommand ??= new LambdaCommand(OnClearList, CanClearListCommand);
 
+        private ICommand _ShowFilerListCommand;
+        private bool CanShowFilerListCommand(object o) => true;
+
+        public ICommand ShowFilerListCommand => _ShowFilerListCommand ??= new LambdaCommand(OnShowFilerList, CanShowFilerListCommand);
+
+        private void OnShowFilerList(object obj)
+        {
+            FileListWindow flWindow = new FileListWindow();
+            flWindow.ShowDialog();
+        }
         #endregion
 
 
@@ -77,8 +90,9 @@ namespace WpfDR.ViewModels
         {
             totalLoaded = 0;
             notifyDelivery = 0;
-            MailItems.Clear();
+            MailItems?.Clear();
             Status = ".";
+            _BrokeMaill = null;
         }
 
         private void OnCancelSearching(object obj)
@@ -86,12 +100,12 @@ namespace WpfDR.ViewModels
             SearchPhrazeContent = default;
             SearchPhrazeSender = default;
             SearchPhrazeSubject = default;
-            _MailItensListView.Refresh();
+            _MailItemsListView.Refresh();
         }
 
         private void OnSearching(object obj)
         {
-            _MailItensListView.Refresh();
+            _MailItemsListView.Refresh();
         }
         private bool MailItemFilter(object o)
         {
@@ -103,11 +117,12 @@ namespace WpfDR.ViewModels
                      ;
         }
 
-        public MainWindowViewModel(ParserService parser)
+        public MainWindowViewModel(ParserService parser, FileListWindowViewModel flWin)
         {
             _Parser = parser;
-            _MailItensListView = System.Windows.Data.CollectionViewSource.GetDefaultView(MailItems);
-            _MailItensListView.Filter = MailItemFilter;
+            _FlWin = flWin;
+            _MailItemsListView = System.Windows.Data.CollectionViewSource.GetDefaultView(MailItems);
+            _MailItemsListView.Filter = MailItemFilter;
         }
 
         private async void OnLoadFile(object o)
@@ -121,50 +136,78 @@ namespace WpfDR.ViewModels
             if (openFileDialog.ShowDialog() == true)
             {
                 int FileCount = 1;
+
+                _FlWin.FileList.Clear();
+                _FlWin.ModalResult = false;
+
                 foreach (var fileName in openFileDialog.FileNames)
+                    _FlWin.FileList.Add(fileName);
+
+                if (openFileDialog.FileNames.Count() > 1)
                 {
-                    if (openFileDialog.FileNames.Count() > 1)
-                        Status = $"Загрузка файла {FileCount} из {openFileDialog.FileNames.Count()}";
+                    OnShowFilerList(o);
 
-                    using (FileStream fstream = File.OpenRead(fileName))
+                    if (!_FlWin.ModalResult)
+                        return;
+                }
+
+                foreach (var fileName in _FlWin.FileList)
+                {
+                    if (_FlWin.FileList.Count() > 1)
+                        Status = $"Загрузка файла {FileCount} из {_FlWin.FileList.Count()}";
+
+                    try
                     {
-                        // преобразуем строку в байты
-                        byte[] array = new byte[fstream.Length];
-                        // считываем данные
-                        await fstream.ReadAsync(array, 0, array.Length).ConfigureAwait(false);
-                        // декодируем байты в строку файл строго UTF8
-                        string textFromFile = System.Text.Encoding.UTF8.GetString(array);
-
-                        var progress = new Progress<double>(p => ParseProgress = p);
-
-                        var res = await _Parser.ParseTextFileAsync(textFromFile, progress, brokenMail: _BrokeMail);
-                        
-                        _BrokeMail = null;
-
-                        totalLoaded += res.Count();
-
-                        foreach (MailItem item in res.GroupBy(g => new { g.FromAbonent, g.Subject, g.DateCreate, g.Content }).Select(g => g.First()))
+                        using (FileStream fstream = File.OpenRead(fileName))
                         {
-                            if (item.Subject == "Уведомление о доставке")
-                                notifyDelivery++;
-                            else
-                            {
-                                App.Current.Dispatcher.Invoke((Action)delegate
-                                {
-                                    if (item.IsEndOfFile)
-                                    {
-                                        _BrokeMail = item;
-                                        totalLoaded--;
-                                    }
-                                    else
-                                        MailItems.Add(item);
-                                });
+                            // преобразуем строку в байты
+                            byte[] array = new byte[fstream.Length];
+                            // считываем данные
+                            await fstream.ReadAsync(array, 0, array.Length).ConfigureAwait(false);
+                            // декодируем байты в строку файл строго UTF8
+                            string textFromFile = System.Text.Encoding.UTF8.GetString(array);
 
+                            var progress = new Progress<double>(p => ParseProgress = p);
+
+                            var res = await _Parser.ParseTextFileAsync(textFromFile, progress, brokenMail: _BrokeMaill);
+
+                            _BrokeMaill = null;
+
+                            totalLoaded += res.Count();
+
+                            foreach (MailItem item in res.GroupBy(g => new { g.FromAbonent, g.Subject, g.DateCreate, g.Content }).Select(g => g.First()))
+                            {
+                                if (item.Subject == "Уведомление о доставке")
+                                    notifyDelivery++;
+                                else
+                                {
+                                    App.Current.Dispatcher.Invoke((Action)delegate
+                                    {
+                                        if (item.IsEndOfFile)
+                                        {
+                                            _BrokeMaill = item;
+                                            totalLoaded--;
+                                        }
+                                        else
+                                            MailItems.Add(item);
+                                    });
+
+                                }
                             }
+                            SelectedMail = MailItems.FirstOrDefault();
+
                         }
-                        SelectedMail = MailItems.FirstOrDefault();
+                        FileCount++;
                     }
-                    FileCount++;
+                    catch (Exception e)
+                    {
+                        MessageBox.Show($" Ошибка:{e.Message}"
+                            , "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        App.Current.Dispatcher.Invoke((Action)delegate
+                        {
+                            OnClearList(o);
+                        });
+                    }
                 }
             }
 
