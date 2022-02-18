@@ -12,7 +12,7 @@
             <Button Content="Загрузить файлы" Padding="30,2" Margin="4,8" Command="{Binding ModalResultOkCommand}" Click="Button_Click"/>
             <Button Content="Отсена" Padding="30,2" Margin="4,8" IsCancel="True"  />
         </StackPanel>
-        <TextBlock Text="Список загружаемых файлов (сверху в низ)" FontWeight="Bold" DockPanel.Dock="Top"/>
+        <TextBlock Text="Список загружаемых файлов (сверху вниз)" FontWeight="Bold" DockPanel.Dock="Top"/>
         <Grid DockPanel.Dock="Top" Margin="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
