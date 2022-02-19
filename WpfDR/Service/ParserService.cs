@@ -10,8 +10,9 @@ namespace WpfDR.Service
 {
     public class ParserService
     {  //Шаблон регулярки, которая находин уникальную свяку трёх первых полей записи
-        private string regExpPattern = @"(([\d\w]{4,})+\t\d\t(\d{2}.\d{2}.\d{4}))";
+        private string regExpPattern = @"(([\d\w]{4,})+\t\d{1,6}\t(\d{2}.\d{2}.\d{4}))";
         private string utf8Cod = @"<meta http-equiv='Content-Type' content='text/html;charset=UTF-8'>";
+        private int tailLength = 12;
 
         public async Task<List<MailItem>> ParseTextFileAsync(string textFile, IProgress<double> Progress = null,
             CancellationToken Cancel = default, MailItem brokenMail = null)
@@ -55,7 +56,7 @@ namespace WpfDR.Service
             string contentBody;
             bool isEndOfFile = false;
             // получаем кусочек окончания тела
-            var endofTheBody = inStr.Substring(bodyLength - 12, 12);
+            var endofTheBody = inStr.Substring(bodyLength - tailLength, tailLength);
             // Добавление кодировки только для UTF-8 в тело письма.            
 
             try
@@ -113,7 +114,7 @@ namespace WpfDR.Service
         {
             int bodyLength = inStr.Length;
 
-            var endofTheBody = inStr.Substring(bodyLength - 8, 8);
+            var endofTheBody = inStr.Substring(bodyLength - tailLength, tailLength);
 
             string[] endValues = endofTheBody.Split('\t');
 
