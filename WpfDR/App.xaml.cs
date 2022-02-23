@@ -28,6 +28,7 @@ namespace WpfDR
         {
             services.AddSingleton<MainWindowViewModel>();
             services.AddSingleton<FileListWindowViewModel>();
+            services.AddSingleton<FileRepackWindowViewModel>();
             services.AddSingleton<ParserService>();
         }
     }

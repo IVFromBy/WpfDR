@@ -76,7 +76,13 @@ namespace WpfDR.ViewModels
         private ICommand _ShowFilerListCommand;
         private bool CanShowFilerListCommand(object o) => true;
 
-        public ICommand ShowFilerListCommand => _ShowFilerListCommand ??= new LambdaCommand(OnShowFilerList, CanShowFilerListCommand);
+        public ICommand RepackFile => _ShowFilerListCommand ??= new LambdaCommand(OnShowRepackFile, CanShowFilerListCommand);
+
+        private void OnShowRepackFile(object obj)
+        {
+            FileRepackWindow frWindow = new FileRepackWindow();
+            frWindow.ShowDialog();
+        }
 
         private void OnShowFilerList(object obj)
         {
