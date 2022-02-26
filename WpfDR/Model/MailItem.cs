@@ -1,5 +1,5 @@
 ﻿using System;
-
+using CsvHelper.Configuration.Attributes;
 
 namespace WpfDR.Model
 {
@@ -41,18 +41,24 @@ namespace WpfDR.Model
 
         public string MID { get; init; }
         public int IdFolder { get; init; }
+        [Format("dd.MM.yyyy")]
         public DateTime DateCreate { get; init; }
         public string Subject { get; init; }
         public string FromAbonent { get; init; }
         public string ReplyTo { get; init; }
         public string ToAbonent { get; init; }
+        [Format("dd.MM.yyyy"), NullValues("?")]
         public DateTime? DateRecive { get; init; }
+        [Format("dd.MM.yyyy"), NullValues("?")]
         public DateTime? DateRead { get; init; }
         public int PA { get; init; }
         public int Receipt { get; set; }
+        [Format("dd.MM.yyyy"), NullValues("?")]
         public DateTime? DateReceipt { get; init; }
+        [NullValues("?")]
         public int? IdReceipt { get; init; }
         public int TypeMessage { get; init; }
+        [Format("dd.MM.yyyy"), NullValues("?")]
         public DateTime? DateSend { get; init; }
         public int IdAbonent { get; init; }
         public int Priority { get; init; }
@@ -60,7 +66,7 @@ namespace WpfDR.Model
         public string Content { get; init; }
         public int Num { get; init; }
         public int MsgCategory { get; init; }
-
+        [Ignore]
         public bool IsEndOfFile { get; set; }
     }
 }
