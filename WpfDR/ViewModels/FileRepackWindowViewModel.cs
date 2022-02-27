@@ -20,7 +20,7 @@ namespace WpfDR.ViewModels
     class FileRepackWindowViewModel : ViewModel
     {
         public List<MailItem> _MailItems { get; } = new();
-        private MailItem _BrokeMaill { get; set; }
+        private Nullable<MailItem> _BrokeMaill { get; set; }
 
         private string _SourceFilePath;
         public string SourceFilePath { get => _SourceFilePath; set => Set(ref _SourceFilePath, value); }
