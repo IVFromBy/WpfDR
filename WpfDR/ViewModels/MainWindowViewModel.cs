@@ -23,7 +23,7 @@ namespace WpfDR.ViewModels
         private ICollectionView _MailItemsListView { get; set; }
 
         public ObservableCollection<MailItem> MailItems { get; } = new();
-        private MailItem _BrokeMaill { get; set; }
+        private Nullable<MailItem> _BrokeMaill { get; set; }
 
         private int totalLoaded = 0;
         private int notifyDelivery = 0;
@@ -115,11 +115,11 @@ namespace WpfDR.ViewModels
         }
         private bool MailItemFilter(object o)
         {
-            MailItem mail = o as MailItem;
+            Nullable<MailItem> mail = o as Nullable<MailItem>;
 
-            return mail.FromAbonent.ToLower().Contains(_SearchPhrazeSender?.ToLower() ?? mail.FromAbonent.ToLower())
-                     && mail.Subject.ToLower().Contains(_SearchPhrazeSubject?.ToLower() ?? mail.Subject.ToLower())
-                     && mail.Content.ToLower().Contains(_SearchPhrazeContent?.ToLower() ?? mail.Content.ToLower())
+            return mail.Value.FromAbonent.ToLower().Contains(_SearchPhrazeSender?.ToLower() ?? mail.Value.FromAbonent.ToLower())
+                     && mail.Value.Subject.ToLower().Contains(_SearchPhrazeSubject?.ToLower() ?? mail.Value.Subject.ToLower())
+                     && mail.Value.Content.ToLower().Contains(_SearchPhrazeContent?.ToLower() ?? mail.Value.Content.ToLower())
                      ;
         }
 

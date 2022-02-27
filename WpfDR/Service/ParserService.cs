@@ -15,7 +15,7 @@ namespace WpfDR.Service
         private int tailLength = 12;
 
         public async Task<List<MailItem>> ParseTextFileAsync(string textFile, IProgress<double> Progress = null,
-            CancellationToken Cancel = default, MailItem brokenMail = null)
+            CancellationToken Cancel = default, Nullable<MailItem> brokenMail = null)
         {
             Regex regex = new Regex(regExpPattern, RegexOptions.Singleline);
             var matches = regex.Matches(textFile);
@@ -30,7 +30,7 @@ namespace WpfDR.Service
 
                 if (IsNeedFixBrokenMail)
                 {
-                    resList.Add(await Task.Run(() => ParseBrokenBody(textFile.Substring(0,m.Index),brokenMail)).ConfigureAwait(false));
+                    resList.Add(await Task.Run(() => ParseBrokenBody(textFile.Substring(0, m.Index), brokenMail)).ConfigureAwait(false));
                     IsNeedFixBrokenMail = false;
                 }
 
@@ -75,30 +75,31 @@ namespace WpfDR.Service
                     contentBody = inStr.Substring(contentPos, bodyLength - contentPos - (endofTheBody.Length - endofTheBody.IndexOf('\t')));
                 }
 
-                return new MailItem(
-                      mID: data[0],
-                      idFolder: Convert.ToInt32(data[1]),
-                      dateCreate: DateTime.ParseExact(data[2],"dd.MM.yyyy", null),
-                      subject: data[3],
-                      fromAbonent: data[4]??"",
-                      replyTo: data[5],
-                      toAbonent: data[6],
-                      dateRecive: data[7] == "?" ? null : DateTime.ParseExact(data[7], "dd.MM.yyyy", null),
-                      dateRead: data[8] == "?" ? null : DateTime.ParseExact(data[8], "dd.MM.yyyy", null),
-                      pA: Convert.ToInt32(data[9]),
-                      receipt: Convert.ToInt32(data[10]),
-                      dateReceipt: data[11] == "?" ? null : DateTime.ParseExact(data[11], "dd.MM.yyyy", null),
-                      idReceipt: data[12] == "?" ? null : Convert.ToInt32(data[12]),
-                      typeMessage: Convert.ToInt32(data[13]),
-                      dateSend: data[14] == "?" ? null : DateTime.ParseExact(data[14], "dd.MM.yyyy", null),
-                      idAbonent: Convert.ToInt32(data[15]),
-                      priority: Convert.ToInt32(data[16]),
-                      isRead: Convert.ToInt32(data[17]),
-                      content: String.Concat(utf8Cod, contentBody),
-                      num: num,
-                      msgCategory: msgCategory,
-                      isEndOfFile: isEndOfFile
-                      );
+                return new MailItem
+                {
+                    MID = data[0],
+                    IdFolder = Convert.ToInt32(data[1]),
+                    DateCreate = DateTime.ParseExact(data[2], "dd.MM.yyyy", null),
+                    Subject = data[3],
+                    FromAbonent = data[4] ?? "",
+                    ReplyTo = data[5],
+                    ToAbonent = data[6],
+                    DateRecive = data[7] == "?" ? null : DateTime.ParseExact(data[7], "dd.MM.yyyy", null),
+                    DateRead = data[8] == "?" ? null : DateTime.ParseExact(data[8], "dd.MM.yyyy", null),
+                    PA = Convert.ToInt32(data[9]),
+                    Receipt = Convert.ToInt32(data[10]),
+                    DateReceipt = data[11] == "?" ? null : DateTime.ParseExact(data[11], "dd.MM.yyyy", null),
+                    IdReceipt = data[12] == "?" ? null : Convert.ToInt32(data[12]),
+                    TypeMessage = Convert.ToInt32(data[13]),
+                    DateSend = data[14] == "?" ? null : DateTime.ParseExact(data[14], "dd.MM.yyyy", null),
+                    IdAbonent = Convert.ToInt32(data[15]),
+                    Priority = Convert.ToInt32(data[16]),
+                    IsRead = Convert.ToInt32(data[17]),
+                    Content = String.Concat(utf8Cod, contentBody),
+                    Num = num,
+                    MsgCategory = msgCategory,
+                    IsEndOfFile = isEndOfFile
+                };
             }
             catch (Exception e)
             {
@@ -110,7 +111,7 @@ namespace WpfDR.Service
 
         }
 
-        private MailItem ParseBrokenBody(string inStr, MailItem brokenMail)
+        private MailItem ParseBrokenBody(string inStr, Nullable<MailItem> brokenMail)
         {
             int bodyLength = inStr.Length;
 
@@ -118,32 +119,31 @@ namespace WpfDR.Service
 
             string[] endValues = endofTheBody.Split('\t');
 
-            MailItem fixedMail = new MailItem
-            {
-                MID = brokenMail.MID,
-                IdFolder = brokenMail.IdFolder,
-                DateCreate = brokenMail.DateCreate,
-                Subject = brokenMail.Subject,
-                FromAbonent = brokenMail.FromAbonent,
-                ReplyTo = brokenMail.ReplyTo,
-                ToAbonent = brokenMail.ToAbonent,
-                DateRecive = brokenMail.DateRecive,
-                DateRead = brokenMail.DateRead,
-                PA = brokenMail.PA,
-                Receipt = brokenMail.Receipt,
-                DateReceipt = brokenMail.DateReceipt,
-                IdReceipt = brokenMail.IdReceipt,
-                TypeMessage = brokenMail.TypeMessage,
-                DateSend = brokenMail.DateSend,
-                IdAbonent = brokenMail.IdAbonent,
-                Priority = brokenMail.Priority,
-                IsRead = brokenMail.IsRead,
-                Content = string.Concat(brokenMail.Content, inStr.Substring(0, bodyLength - (endofTheBody.Length - endofTheBody.IndexOf('\t')))),
-                Num = Convert.ToInt32(endValues[1]),
-                MsgCategory = Convert.ToInt32(endValues[2]),
-                IsEndOfFile = false,
-            };
-            return fixedMail;
+            Nullable<MailItem> fixedMail = new MailItem
+            (brokenMail.Value.MID,
+                idFolder: brokenMail.Value.IdFolder,
+                dateCreate: brokenMail.Value.DateCreate,
+                subject: brokenMail.Value.Subject,
+                fromAbonent: brokenMail.Value.FromAbonent,
+                replyTo: brokenMail.Value.ReplyTo,
+                toAbonent : brokenMail.Value.ToAbonent,
+                dateRecive : brokenMail.Value.DateRecive,
+                dateRead : brokenMail.Value.DateRead,
+                pA : brokenMail.Value.PA,
+                receipt : brokenMail.Value.Receipt,
+                dateReceipt : brokenMail.Value.DateReceipt,
+                idReceipt : brokenMail.Value.IdReceipt,
+                typeMessage : brokenMail.Value.TypeMessage,
+                dateSend : brokenMail.Value.DateSend,
+                idAbonent : brokenMail.Value.IdAbonent,
+                priority : brokenMail.Value.Priority,
+                isRead : brokenMail.Value.IsRead,
+                content : string.Concat(brokenMail.Value.Content, inStr.Substring(0, bodyLength - (endofTheBody.Length - endofTheBody.IndexOf('\t')))),
+                num : Convert.ToInt32(endValues[1]),
+                msgCategory : Convert.ToInt32(endValues[2]),
+                isEndOfFile : false
+            );
+            return fixedMail.Value;
         }
 
 

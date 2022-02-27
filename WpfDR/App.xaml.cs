@@ -28,8 +28,8 @@ namespace WpfDR
         {
             services.AddSingleton<MainWindowViewModel>();
             services.AddScoped<FileListWindowViewModel>();
-            services.AddScoped<FileRepackWindowViewModel>();
-            services.AddScoped<ParserService>();
+            services.AddTransient<FileRepackWindowViewModel>();
+            services.AddTransient<ParserService>();
         }
     }
 }

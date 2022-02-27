@@ -20,7 +20,7 @@ namespace WpfDR.ViewModels
     class FileRepackWindowViewModel : ViewModel
     {
         public List<MailItem> _MailItems { get; } = new();
-        private MailItem _BrokeMaill { get; set; }
+        private Nullable<MailItem> _BrokeMaill { get; set; }
 
         private string _SourceFilePath;
         public string SourceFilePath { get => _SourceFilePath; set => Set(ref _SourceFilePath, value); }
@@ -39,6 +39,9 @@ namespace WpfDR.ViewModels
 
         private bool _EnableBtn = true;
         public bool btnEnable { get => _EnableBtn; set => Set(ref _EnableBtn, value); }
+
+        private bool _UseEcoMode = false;
+        public bool UseEcoMode { get => _UseEcoMode; set => Set(ref _UseEcoMode, value); }
 
         #region comands
         private ICommand _SetSourceFilePath;
@@ -115,18 +118,9 @@ namespace WpfDR.ViewModels
                         Lines.Clear();
                     }
 
-                }
+                    if (!_UseEcoMode)
+                        SaveRepackBlock();
 
-                using (var stream = File.Open(_ResultFilePath, FileMode.Append))
-                using (var writer = new StreamWriter(stream))
-                using (var csv = new CsvWriter(writer, new CsvConfiguration(new CultureInfo("ru-RU"))
-                {
-                    HasHeaderRecord = false,
-                    Delimiter = "\t",
-                }))
-                {
-                    csv.WriteRecords(_MailItems);
-                    _MailItems.Clear();
                 }
 
                 TotalProgress = false;
@@ -167,6 +161,24 @@ namespace WpfDR.ViewModels
                 }
             }
 
+            if (_UseEcoMode)
+                SaveRepackBlock();
+        }
+
+
+        private void SaveRepackBlock()
+        {
+            using (var stream = File.Open(_ResultFilePath, FileMode.Append))
+            using (var writer = new StreamWriter(stream))
+            using (var csv = new CsvWriter(writer, new CsvConfiguration(new CultureInfo("ru-RU"))
+            {
+                HasHeaderRecord = false,
+                Delimiter = "\t",
+            }))
+            {
+                csv.WriteRecords(_MailItems);
+                _MailItems.Clear();
+            }
         }
     }
 }
