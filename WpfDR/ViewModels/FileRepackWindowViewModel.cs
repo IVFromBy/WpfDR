@@ -40,6 +40,9 @@ namespace WpfDR.ViewModels
         private bool _EnableBtn = true;
         public bool btnEnable { get => _EnableBtn; set => Set(ref _EnableBtn, value); }
 
+        private bool _UseEcoMode = false;
+        public bool UseEcoMode { get => _UseEcoMode; set => Set(ref _UseEcoMode, value); }
+
         #region comands
         private ICommand _SetSourceFilePath;
         private bool CanSetSourceFilePath(object o) => true;
@@ -115,18 +118,9 @@ namespace WpfDR.ViewModels
                         Lines.Clear();
                     }
 
-                }
+                    if (!_UseEcoMode)
+                        SaveRepackBlock();
 
-                using (var stream = File.Open(_ResultFilePath, FileMode.Append))
-                using (var writer = new StreamWriter(stream))
-                using (var csv = new CsvWriter(writer, new CsvConfiguration(new CultureInfo("ru-RU"))
-                {
-                    HasHeaderRecord = false,
-                    Delimiter = "\t",
-                }))
-                {
-                    csv.WriteRecords(_MailItems);
-                    _MailItems.Clear();
                 }
 
                 TotalProgress = false;
@@ -167,6 +161,24 @@ namespace WpfDR.ViewModels
                 }
             }
 
+            if (_UseEcoMode)
+                SaveRepackBlock();
+        }
+
+
+        private void SaveRepackBlock()
+        {
+            using (var stream = File.Open(_ResultFilePath, FileMode.Append))
+            using (var writer = new StreamWriter(stream))
+            using (var csv = new CsvWriter(writer, new CsvConfiguration(new CultureInfo("ru-RU"))
+            {
+                HasHeaderRecord = false,
+                Delimiter = "\t",
+            }))
+            {
+                csv.WriteRecords(_MailItems);
+                _MailItems.Clear();
+            }
         }
     }
 }
