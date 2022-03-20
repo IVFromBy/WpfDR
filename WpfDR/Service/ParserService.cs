@@ -23,31 +23,43 @@ namespace WpfDR.Service
             bool IsNeedFixBrokenMail = brokenMail is not null;
             var resList = new List<MailItem>();
             int i = 0;
+            try
+            {
 
-            foreach (Match m in matches)
-            { // находим следующее совпадение
-                Match nextV = m.NextMatch();
 
-                if (IsNeedFixBrokenMail)
-                {
-                    resList.Add(await Task.Run(() => ParseBrokenBody(textFile.Substring(0, m.Index), brokenMail)).ConfigureAwait(false));
-                    IsNeedFixBrokenMail = false;
+                foreach (Match m in matches)
+                { // находим следующее совпадение
+                    Match nextV = m.NextMatch();
+
+                    if (IsNeedFixBrokenMail)
+                    {
+                        resList.Add(await Task.Run(() => ParseBrokenBody(textFile.Substring(0, m.Index), brokenMail)).ConfigureAwait(false));
+                        IsNeedFixBrokenMail = false;
+                    }
+
+                    Progress?.Report((double)i / totalMatches);
+                    // передаём на детальный разбор парсером одного сообщения
+                    resList.Add(await Task.Run(() => ParseBody(textFile.Substring(m.Index, nextV.Success ? nextV.Index - m.Index : textFile.Length - m.Index))).ConfigureAwait(false));
+                    i++;
+                    Cancel.ThrowIfCancellationRequested();
                 }
-
-                Progress?.Report((double)i / totalMatches);
-                // передаём на детальный разбор парсером одного сообщения
-                resList.Add(await Task.Run(() => ParseBody(textFile.Substring(m.Index, nextV.Success ? nextV.Index - m.Index : textFile.Length - m.Index))).ConfigureAwait(false));
-                i++;
-                Cancel.ThrowIfCancellationRequested();
+                Progress?.Report(1);
+                return resList;
             }
-            Progress?.Report(1);
-            return resList;
+            catch (Exception e)
+            {
+
+                MessageBox.Show($"Произошла на этапе парсинга тела! \n Ошибка:{e.Message}"
+                    , "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return resList;
+            }
         }
 
         private MailItem ParseBody(string inStr)
         {
             // ищем начало поля "content"
-            int contentPos = inStr.IndexOf('<');
+            int contentPos = inStr.IndexOf("<span") == -1 ? inStr.IndexOf("<html") : inStr.IndexOf("<span");
+
             // отделяем начало записи от тела контента
             string[] data = inStr.Substring(0, contentPos).Split('\t');
             int bodyLength = inStr.Length;
@@ -113,37 +125,48 @@ namespace WpfDR.Service
 
         private MailItem ParseBrokenBody(string inStr, Nullable<MailItem> brokenMail)
         {
-            int bodyLength = inStr.Length;
+            try
+            {
 
-            var endofTheBody = inStr.Substring(bodyLength - tailLength, tailLength);
+                int bodyLength = inStr.Length;
 
-            string[] endValues = endofTheBody.Split('\t');
+                var endofTheBody = inStr.Substring(bodyLength - tailLength, tailLength);
 
-            Nullable<MailItem> fixedMail = new MailItem
-            (brokenMail.Value.MID,
-                idFolder: brokenMail.Value.IdFolder,
-                dateCreate: brokenMail.Value.DateCreate,
-                subject: brokenMail.Value.Subject,
-                fromAbonent: brokenMail.Value.FromAbonent,
-                replyTo: brokenMail.Value.ReplyTo,
-                toAbonent : brokenMail.Value.ToAbonent,
-                dateRecive : brokenMail.Value.DateRecive,
-                dateRead : brokenMail.Value.DateRead,
-                pA : brokenMail.Value.PA,
-                receipt : brokenMail.Value.Receipt,
-                dateReceipt : brokenMail.Value.DateReceipt,
-                idReceipt : brokenMail.Value.IdReceipt,
-                typeMessage : brokenMail.Value.TypeMessage,
-                dateSend : brokenMail.Value.DateSend,
-                idAbonent : brokenMail.Value.IdAbonent,
-                priority : brokenMail.Value.Priority,
-                isRead : brokenMail.Value.IsRead,
-                content : string.Concat(brokenMail.Value.Content, inStr.Substring(0, bodyLength - (endofTheBody.Length - endofTheBody.IndexOf('\t')))),
-                num : Convert.ToInt32(endValues[1]),
-                msgCategory : Convert.ToInt32(endValues[2]),
-                isEndOfFile : false
-            );
-            return fixedMail.Value;
+                string[] endValues = endofTheBody.Split('\t');
+
+                Nullable<MailItem> fixedMail = new MailItem
+                (brokenMail.Value.MID,
+                    idFolder: brokenMail.Value.IdFolder,
+                    dateCreate: brokenMail.Value.DateCreate,
+                    subject: brokenMail.Value.Subject,
+                    fromAbonent: brokenMail.Value.FromAbonent,
+                    replyTo: brokenMail.Value.ReplyTo,
+                    toAbonent: brokenMail.Value.ToAbonent,
+                    dateRecive: brokenMail.Value.DateRecive,
+                    dateRead: brokenMail.Value.DateRead,
+                    pA: brokenMail.Value.PA,
+                    receipt: brokenMail.Value.Receipt,
+                    dateReceipt: brokenMail.Value.DateReceipt,
+                    idReceipt: brokenMail.Value.IdReceipt,
+                    typeMessage: brokenMail.Value.TypeMessage,
+                    dateSend: brokenMail.Value.DateSend,
+                    idAbonent: brokenMail.Value.IdAbonent,
+                    priority: brokenMail.Value.Priority,
+                    isRead: brokenMail.Value.IsRead,
+                    content: string.Concat(brokenMail.Value.Content, inStr.Substring(0, bodyLength - (endofTheBody.Length - endofTheBody.IndexOf('\t')))),
+                    num: Convert.ToInt32(endValues[1]),
+                    msgCategory: Convert.ToInt32(endValues[2]),
+                    isEndOfFile: false
+                );
+                return fixedMail.Value;
+            }
+            catch (Exception e)
+            {
+
+                MessageBox.Show($"Произошла на этапе парсинга сломанного тела! \n Ошибка:{e.Message}"
+    , "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return new MailItem();
+            }
         }
 
 
