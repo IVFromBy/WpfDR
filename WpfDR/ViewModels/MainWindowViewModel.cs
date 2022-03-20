@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
@@ -22,7 +24,7 @@ namespace WpfDR.ViewModels
 
         private ICollectionView _MailItemsListView { get; set; }
 
-        public ObservableCollection<MailItem> MailItems { get; } = new();
+        public ObservableCollection<MailItem> MailItems { get;  } = new();
         private Nullable<MailItem> _BrokeMaill { get; set; }
 
         private int totalLoaded = 0;
@@ -51,6 +53,8 @@ namespace WpfDR.ViewModels
         private MailItem _SelectedMail;
         public MailItem SelectedMail { get => _SelectedMail; set => Set(ref _SelectedMail, value); }
 
+        private bool _ReadingFile = false;
+        public bool ReadingFile { get => _ReadingFile; set => Set(ref _ReadingFile, value); }
         #endregion
 
         #region Commands
@@ -162,26 +166,34 @@ namespace WpfDR.ViewModels
                     if (_FlWin.FileList.Count() > 1)
                         Status = $"Загрузка файла {FileCount} из {_FlWin.FileList.Count()}";
 
+
+
                     try
                     {
-                        using (FileStream fstream = File.OpenRead(fileName))
+                        using (StreamReader fstream = new StreamReader(new BufferedStream(File.OpenRead(fileName), (1024 * 1024) * 7)))
                         {
-                            // преобразуем строку в байты
-                            byte[] array = new byte[fstream.Length];
-                            // считываем данные
-                            await fstream.ReadAsync(array, 0, array.Length).ConfigureAwait(false);
-                            // декодируем байты в строку файл строго UTF8
-                            string textFromFile = System.Text.Encoding.UTF8.GetString(array);
 
                             var progress = new Progress<double>(p => ParseProgress = p);
-
+                            Status = $"Читаю файл - {fileName}";
+                            ReadingFile = true;
+                            IProgress<double> prog = progress;
+                            string textFromFile = await Task.Run(() => fstream.ReadToEndAsync()).ConfigureAwait(false);
+                            fstream.Close();
+                            ReadingFile = false;
+                            Status = "Обрабатываю";
                             var res = await _Parser.ParseTextFileAsync(textFromFile, progress, brokenMail: _BrokeMaill);
 
                             _BrokeMaill = null;
 
                             totalLoaded += res.Count();
 
-                            foreach (MailItem item in res.GroupBy(g => new { g.FromAbonent, g.Subject, g.DateCreate, g.Content }).Select(g => g.First()))
+                            var GrouptedRes = res.GroupBy(g => new { g.FromAbonent, g.Subject, g.DateCreate, g.Content }).Select(g => g.First());
+                            
+                            int grpRes = GrouptedRes.Count();
+                            int i = 0;
+                            Status = "Формирую список для отображения";
+
+                            foreach (MailItem item in GrouptedRes)
                             {
                                 if (item.Subject == "Уведомление о доставке")
                                     notifyDelivery++;
@@ -198,10 +210,13 @@ namespace WpfDR.ViewModels
                                             MailItems.Add(item);
                                     });
 
-                                }
+                                }                                
+                                prog.Report ((double)i / grpRes);
+                                
+                                i++;
                             }
                             SelectedMail = MailItems.FirstOrDefault();
-
+                            
                         }
                         FileCount++;
                     }

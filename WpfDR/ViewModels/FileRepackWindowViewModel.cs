@@ -91,7 +91,7 @@ namespace WpfDR.ViewModels
             try
             {
                 TotalProgress = true;
-                using (StreamReader r = new StreamReader(_SourceFilePath))
+                using (StreamReader r = new StreamReader(new BufferedStream(File.OpenRead(_SourceFilePath), 1024 * 1024)))
                 {
                     int count = 0;
                     using (FileStream fstream = new FileStream(_ResultFilePath, FileMode.Append))
@@ -128,7 +128,7 @@ namespace WpfDR.ViewModels
             }
             catch (Exception e)
             {
-                MessageBox.Show($" Ошибка:{e.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($" Ошибка:{e.Message}", "Ошибка преобразования", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
@@ -146,6 +146,8 @@ namespace WpfDR.ViewModels
             string text = string.Join("\n", lines.ToArray());
 
             var progress = new Progress<double>(p => ParseProgress = p);
+            try
+            {
 
             var res = await _Parser.ParseTextFileAsync(text, progress, brokenMail: _BrokeMaill).ConfigureAwait(false);
             _BrokeMaill = null;
@@ -163,6 +165,12 @@ namespace WpfDR.ViewModels
 
             if (_UseEcoMode)
                 SaveRepackBlock();
+            }
+            catch (Exception e)
+            {
+
+                MessageBox.Show($" Ошибка:{e.Message}", "Ошибка преобразования R", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
 
