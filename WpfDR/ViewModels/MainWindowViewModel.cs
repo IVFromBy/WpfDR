@@ -166,8 +166,6 @@ namespace WpfDR.ViewModels
                     if (_FlWin.FileList.Count() > 1)
                         Status = $"Загрузка файла {FileCount} из {_FlWin.FileList.Count()}";
 
-
-
                     try
                     {
                         using (StreamReader fstream = new StreamReader(new BufferedStream(File.OpenRead(fileName), (1024 * 1024) * 7)))

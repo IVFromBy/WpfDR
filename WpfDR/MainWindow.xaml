@@ -13,9 +13,14 @@
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </Window.Resources>
     <DockPanel>
+        <TabControl >
+            <TabItem Header="Работа с файлами">
+                <DockPanel>
+    
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="Файл">
-                <MenuItem Header="Загрузить" Command="{Binding LoadFileCommand}"/>
+                <MenuItem Header="Загрузить из файла" Command="{Binding LoadFileCommand}"/>
+                <MenuItem Header="Загрузить из базы" Command="{Binding LoadSqlCommand}"/>
                 <MenuItem Header="Очистить список" Command="{Binding ClearListCommand}"/>
                 <Separator/>
                 <MenuItem Header="Обработка файла" Command="{Binding RepackFile}"/>
@@ -181,6 +186,12 @@
                 </TabItem>
             </TabControl>
         </Grid>
-
     </DockPanel>
+    </TabItem>
+            <TabItem Header="Работа с SQL">
+                
+            </TabItem>
+    </TabControl>
+</DockPanel>
+    
 </Window>

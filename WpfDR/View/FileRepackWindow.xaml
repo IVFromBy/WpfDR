@@ -7,11 +7,11 @@
         xmlns:local="clr-namespace:WpfDR.View"
         mc:Ignorable="d"
         DataContext="{Binding FileRepackWindowModel, Source={StaticResource Locator}}"
-        Title="Обработка большого файла" Height="220" Width="560" WindowStyle="ToolWindow" WindowStartupLocation="CenterScreen">
+        Title="Обработка большого файла" Height="225" Width="560" WindowStyle="ToolWindow" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="60"/>
-            <RowDefinition Height="60"/>
+            <RowDefinition Height="57"/>
+            <RowDefinition Height="57"/>
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         <TextBlock Text="Большой файл для обработки" Grid.Row="0" Margin="5,5,0,0"/>
@@ -39,12 +39,10 @@
                     </StackPanel>
 
                 </StackPanel>
-                <CheckBox DockPanel.Dock="Bottom" Content="режим экономии оперативки (работает медленее, но оперативку экономит)" IsChecked="{Binding UseEcoMode}"/>
             </StackPanel>
-            <!--<RadioButton /> -->
 
         </Border>
-        <Button Grid.Row="2"  Height="20" Width="80" VerticalAlignment="Bottom" Margin="5" IsEnabled="{Binding btnEnable}" Command="{Binding StartRepack}">
+        <Button Grid.Row="2"  Height="25" VerticalAlignment="Top" Margin="240,35,240,0" IsEnabled="{Binding btnEnable}" Command="{Binding StartRepack}">
             <StackPanel Orientation="Horizontal">
                 <fa:ImageAwesome Height="12" Icon="Solid_File"/>
                 <TextBlock Text="Пуск" Margin="4,0,0,0"/>
