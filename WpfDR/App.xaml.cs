@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using WpfDR.Data;
 using WpfDR.Service;
 using WpfDR.ViewModels;
 
 namespace WpfDR
 {
-    public partial class App 
+    public partial class App
     {
         private static IHost __hosting;
 
@@ -26,6 +23,8 @@ namespace WpfDR
 
         private static void ConfigureServices(HostBuilderContext host, IServiceCollection services)
         {
+            services.AddDbContext<WpfDb>(opt => opt.UseSqlite(host.Configuration.GetConnectionString("SqLite")));
+
             services.AddSingleton<MainWindowViewModel>();
             services.AddScoped<FileListWindowViewModel>();
             services.AddTransient<FileRepackWindowViewModel>();

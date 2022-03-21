@@ -24,7 +24,7 @@ namespace WpfDR.ViewModels
 
         private ICollectionView _MailItemsListView { get; set; }
 
-        public ObservableCollection<MailItem> MailItems { get;  } = new();
+        public ObservableCollection<MailItem> MailItems { get; } = new();
         private Nullable<MailItem> _BrokeMaill { get; set; }
 
         private int totalLoaded = 0;
@@ -55,6 +55,9 @@ namespace WpfDR.ViewModels
 
         private bool _ReadingFile = false;
         public bool ReadingFile { get => _ReadingFile; set => Set(ref _ReadingFile, value); }
+
+        private byte _SelectedTabIndex = 0;
+        public byte SelectedTabIndex { get => _SelectedTabIndex; set => Set(ref _SelectedTabIndex, value); }
         #endregion
 
         #region Commands
@@ -111,6 +114,7 @@ namespace WpfDR.ViewModels
             SearchPhrazeSender = default;
             SearchPhrazeSubject = default;
             _MailItemsListView.Refresh();
+
         }
 
         private void OnSearching(object obj)
@@ -186,7 +190,7 @@ namespace WpfDR.ViewModels
                             totalLoaded += res.Count();
 
                             var GrouptedRes = res.GroupBy(g => new { g.FromAbonent, g.Subject, g.DateCreate, g.Content }).Select(g => g.First());
-                            
+
                             int grpRes = GrouptedRes.Count();
                             int i = 0;
                             Status = "Формирую список для отображения";
@@ -208,13 +212,13 @@ namespace WpfDR.ViewModels
                                             MailItems.Add(item);
                                     });
 
-                                }                                
-                                prog.Report ((double)i / grpRes);
-                                
+                                }
+                                prog.Report((double)i / grpRes);
+
                                 i++;
                             }
                             SelectedMail = MailItems.FirstOrDefault();
-                            
+
                         }
                         FileCount++;
                     }

@@ -13,10 +13,6 @@
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </Window.Resources>
     <DockPanel>
-        <TabControl >
-            <TabItem Header="Работа с файлами">
-                <DockPanel>
-    
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="Файл">
                 <MenuItem Header="Загрузить из файла" Command="{Binding LoadFileCommand}"/>
@@ -24,6 +20,8 @@
                 <MenuItem Header="Очистить список" Command="{Binding ClearListCommand}"/>
                 <Separator/>
                 <MenuItem Header="Обработка файла" Command="{Binding RepackFile}"/>
+                <Separator/>
+                <MenuItem Header="Импортировать в базу" Command="{Binding ImportInToSqlCommand}"/>
                 <Separator/>
                 <MenuItem Header="Выход" Command="{StaticResource CloseAppCommand}"/>
             </MenuItem>
@@ -65,6 +63,10 @@
             </DockPanel>
         </GroupBox>
 
+        <TabControl SelectedIndex="{Binding SelectedTabIndex}">
+            <TabItem Header="Работа с файлами">
+                <DockPanel>
+    
         <StatusBar DockPanel.Dock="Bottom" Height="30">
             <StatusBarItem  DockPanel.Dock="Right">
                 <ResizeGrip/>
