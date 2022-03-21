@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using WpfDR.Data;
+using WpfDR.Model;
 using WpfDR.Service;
 using WpfDR.ViewModels;
 
@@ -24,6 +25,7 @@ namespace WpfDR
         private static void ConfigureServices(HostBuilderContext host, IServiceCollection services)
         {
             services.AddDbContext<WpfDb>(opt => opt.UseSqlite(host.Configuration.GetConnectionString("SqLite")));
+            services.AddScoped<IRepository<MailItemDb>,DbRepository<MailItemDb>>();
 
             services.AddSingleton<MainWindowViewModel>();
             services.AddScoped<FileListWindowViewModel>();

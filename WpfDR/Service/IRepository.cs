@@ -14,5 +14,6 @@ namespace WpfDR.Service
         int Add(T item);
         void Update(T item);
         bool Remove(int id);
+        //bool AddRange(IEnumerable<T> itemList);
     }
 }
