@@ -22,6 +22,7 @@ namespace WpfDR.ViewModels
         private ParserService _Parser;
         private FileListWindowViewModel _FlWin;
         private IRepository<MailItemDb> _repository;
+        private readonly SqlImporterViewModel _sqlImport;
 
         private ICollectionView _MailItemsListView { get; set; }
 
@@ -87,6 +88,9 @@ namespace WpfDR.ViewModels
 
         public ICommand RepackFile => _ShowFilerListCommand ??= new LambdaCommand(OnShowRepackFile, CanShowFilerListCommand);
 
+        private ICommand _ShowImportSqlCommand;
+        public ICommand ImportInToSqlCommand => _ShowImportSqlCommand ??= new LambdaCommand(OnShowSqlImport, CanShowFilerListCommand);
+
         private ICommand _loadSqlCommand;
         private bool CanLoadSqlCommand(object o) => true;
         public ICommand LoadSqlCommand => _loadSqlCommand ??= new LambdaCommand(OnLoadSql, CanLoadSqlCommand);
@@ -102,6 +106,13 @@ namespace WpfDR.ViewModels
             FileListWindow flWindow = new FileListWindow();
             flWindow.ShowDialog();
         }
+        private void OnShowSqlImport(object obj)
+        {
+            SqlImporterWindow flWindow = new SqlImporterWindow();
+            flWindow.ShowDialog();
+        }
+
+
         #endregion
 
 
@@ -137,13 +148,16 @@ namespace WpfDR.ViewModels
                      ;
         }
 
-        public MainWindowViewModel(ParserService parser, FileListWindowViewModel flWin
+        public MainWindowViewModel(ParserService parser
+            , FileListWindowViewModel flWin
             , IRepository<MailItemDb> repository
+            , SqlImporterViewModel sqlImport
             )
         {
             _Parser = parser;
             _FlWin = flWin;
             _repository = repository;
+            _sqlImport = sqlImport;
             _MailItemsListView = System.Windows.Data.CollectionViewSource.GetDefaultView(MailItems);
             _MailItemsListView.Filter = MailItemFilter;
         }
@@ -251,7 +265,9 @@ namespace WpfDR.ViewModels
 
         private void OnLoadSql(object obj)
         {
-            foreach (var mail in _repository.GetAll())SqlMailItems.Add(mail);
+            SqlMailItems.Clear();
+            foreach (var mail in _repository.GetAll())
+                SqlMailItems.Add(mail);
         }
 
     }

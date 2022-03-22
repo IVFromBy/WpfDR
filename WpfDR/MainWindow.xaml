@@ -16,8 +16,10 @@
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="Файл">
                 <MenuItem Header="Загрузить из файла" Command="{Binding LoadFileCommand}"/>
-                <MenuItem Header="Загрузить из базы" Command="{Binding LoadSqlCommand}"/>
                 <MenuItem Header="Очистить список" Command="{Binding ClearListCommand}"/>
+                <Separator/>
+                <MenuItem Header="Загрузить из базы" Command="{Binding LoadSqlCommand}"/>
+                <MenuItem Header="Очистить список из базы" Command="{Binding ClearListCommand}"/>
                 <Separator/>
                 <MenuItem Header="Обработка файла" Command="{Binding RepackFile}"/>
                 <Separator/>

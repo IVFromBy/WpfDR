@@ -32,6 +32,7 @@ namespace WpfDR
             services.AddTransient<FileListWindowViewModel>();
             services.AddTransient<FileRepackWindowViewModel>();
             services.AddTransient<ParserService>();
+            services.AddTransient<SqlImporterViewModel>();
         }
     }
 }
