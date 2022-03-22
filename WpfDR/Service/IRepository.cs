@@ -7,7 +7,7 @@ using WpfDR.Model;
 
 namespace WpfDR.Service
 {
-    interface IRepository<T> where T: Entity
+    public interface IRepository<T> where T: Entity
     {
         IEnumerable<T> GetAll();
         T GetById(int id);

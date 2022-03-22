@@ -18,14 +18,16 @@ namespace WpfDR.ViewModels
 {
     public class MainWindowViewModel : ViewModel
     {
-
+        
         private ParserService _Parser;
         private FileListWindowViewModel _FlWin;
+        private IRepository<MailItemDb> _repository;
 
         private ICollectionView _MailItemsListView { get; set; }
 
         public ObservableCollection<MailItem> MailItems { get; } = new();
         private Nullable<MailItem> _BrokeMaill { get; set; }
+        public ObservableCollection<MailItemDb> SqlMailItems { get; } = new();
 
         private int totalLoaded = 0;
         private int notifyDelivery = 0;
@@ -85,6 +87,10 @@ namespace WpfDR.ViewModels
 
         public ICommand RepackFile => _ShowFilerListCommand ??= new LambdaCommand(OnShowRepackFile, CanShowFilerListCommand);
 
+        private ICommand _loadSqlCommand;
+        private bool CanLoadSqlCommand(object o) => true;
+        public ICommand LoadSqlCommand => _loadSqlCommand ??= new LambdaCommand(OnLoadSql, CanLoadSqlCommand);
+
         private void OnShowRepackFile(object obj)
         {
             FileRepackWindow frWindow = new FileRepackWindow();
@@ -131,10 +137,13 @@ namespace WpfDR.ViewModels
                      ;
         }
 
-        public MainWindowViewModel(ParserService parser, FileListWindowViewModel flWin)
+        public MainWindowViewModel(ParserService parser, FileListWindowViewModel flWin
+            , IRepository<MailItemDb> repository
+            )
         {
             _Parser = parser;
             _FlWin = flWin;
+            _repository = repository;
             _MailItemsListView = System.Windows.Data.CollectionViewSource.GetDefaultView(MailItems);
             _MailItemsListView.Filter = MailItemFilter;
         }
@@ -238,6 +247,11 @@ namespace WpfDR.ViewModels
             ShowProgressBar = false;
 
             Status = $"Обработано {totalLoaded}; Удалено уведомлений о доставке {notifyDelivery}; Дубликаты: {totalLoaded - notifyDelivery - MailItems.Count}; Показано {MailItems.Count}";
+        }
+
+        private void OnLoadSql(object obj)
+        {
+            foreach (var mail in _repository.GetAll())SqlMailItems.Add(mail);
         }
 
     }

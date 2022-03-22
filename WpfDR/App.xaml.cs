@@ -20,7 +20,8 @@ namespace WpfDR
 
         public static IHostBuilder CreateHostBulder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-            .ConfigureServices(ConfigureServices);
+               .ConfigureAppConfiguration(opt => opt.AddJsonFile("appsettings.json", true,true))
+               .ConfigureServices(ConfigureServices);
 
         private static void ConfigureServices(HostBuilderContext host, IServiceCollection services)
         {
@@ -28,7 +29,7 @@ namespace WpfDR
             services.AddScoped<IRepository<MailItemDb>,DbRepository<MailItemDb>>();
 
             services.AddSingleton<MainWindowViewModel>();
-            services.AddScoped<FileListWindowViewModel>();
+            services.AddTransient<FileListWindowViewModel>();
             services.AddTransient<FileRepackWindowViewModel>();
             services.AddTransient<ParserService>();
         }
