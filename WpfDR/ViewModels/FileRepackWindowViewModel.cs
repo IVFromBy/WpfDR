@@ -72,7 +72,7 @@ namespace WpfDR.ViewModels
         #endregion
 
         private readonly ParserService _Parser;
-        private int _packNo;
+
         public FileRepackWindowViewModel(ParserService parser)
         {
             _Parser = parser;
@@ -84,33 +84,33 @@ namespace WpfDR.ViewModels
             int.TryParse(_ReadRowCount, out readRowCount);
             btnEnable = false;
 
-            LinkedList<string> Lines = new LinkedList<string>();
+            var Lines = new string[readRowCount];
             try
             {
                 TotalProgress = true;
                 using (StreamReader r = new StreamReader(new BufferedStream(File.OpenRead(_SourceFilePath), 1024 * 1024)))
                 {
                     int count = 0;
-                    _packNo = 1;
+
 
                     while (r.EndOfStream != true)
                     {
-                        Lines.AddLast(r.ReadLine());
+                        Lines[count] = r.ReadLine();
                         count++;
-
                         if (count == readRowCount)
                         {
                             count = 0;
                             await RepackBlock(Lines).ConfigureAwait(false);
-                            Lines.Clear();
-                            _packNo++;
+                            Array.Clear(Lines, 0, readRowCount);
+
                         }
+
                     }
                     if (count > 0 && count <= readRowCount)
                     {
                         count = 0;
                         await RepackBlock(Lines).ConfigureAwait(false);
-                        Lines.Clear();
+                        Array.Clear(Lines, 0, readRowCount);
                     }
 
                 }
@@ -133,9 +133,9 @@ namespace WpfDR.ViewModels
             }
         }
 
-        private async Task RepackBlock(LinkedList<string> lines)
+        private async Task RepackBlock(string[] lines)
         {
-            string text = string.Join("\n", lines.ToArray());
+            string text = string.Join("\n", lines);
 
             var progress = new Progress<double>(p => ParseProgress = p);
             try
