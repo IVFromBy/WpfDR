@@ -108,8 +108,16 @@ namespace WpfDR.ViewModels
         }
         private void OnShowSqlImport(object obj)
         {
-            SqlImporterWindow flWindow = new SqlImporterWindow();
-            flWindow.ShowDialog();
+            try
+            {
+                SqlImporterWindow flWindow = new SqlImporterWindow();
+                flWindow.ShowDialog();
+            }
+            catch(Exception e)
+            {
+                MessageBox.Show($" Ошибка:{e.Message}"
+                            , "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
 

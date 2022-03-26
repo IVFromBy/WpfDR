@@ -15,7 +15,7 @@
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Vertical" Grid.Row="0">
-            <TextBlock Text="Большой файл для импорта" Grid.Row="0" Margin="5,10,0,0"/>
+            <TextBlock Text="Файл для импорта" Grid.Row="0" Margin="5,10,0,0"/>
             <StackPanel Orientation="Horizontal" >
                 <TextBox Grid.Row="0" IsReadOnly="True" Height="20" Margin="5,0,0,0" Width="465" Text="{Binding SourceFilePath}" />
                 <Button Grid.Row="0" ToolTip="Выбрать файл для обработки" Height="20" Width="25"
@@ -24,16 +24,16 @@
             </StackPanel>
         </StackPanel>
         <StackPanel Grid.Row="1" Orientation="Horizontal">
-            <TextBlock Text="." Margin="5,5,0,0" Height="20" VerticalAlignment="Top" Width="200"/>
+            <TextBlock Text="{Binding ImportStatus}" Margin="5,5,0,0" Height="20" VerticalAlignment="Top" Width="200"/>
             <StackPanel>
                 <ProgressBar Height="20" Maximum="1" VerticalAlignment="Top" Width="280" Margin="10,7,0,0" Value="{Binding ParseProgress}"/>
             </StackPanel>
 
         </StackPanel>
-        <Button Grid.Row="2"  Height="25" VerticalAlignment="Top" Margin="200,0" IsEnabled="{Binding btnEnable}" Command="{Binding StartImportCommand`}">
+        <Button Grid.Row="2"  Height="25" VerticalAlignment="Top" Margin="200,0" IsEnabled="{Binding btnEnable}" Command="{Binding StartImportCommand}">
             <StackPanel Orientation="Horizontal">
                 <fa:ImageAwesome Height="12" Icon="Solid_Database"/>
-                <TextBlock Text="Импортировать" Margin="4,0,0,0"/>
+                <TextBlock Text="Импортировать" Margin="4,0,4,0"/>
             </StackPanel>
         </Button>
     </Grid>

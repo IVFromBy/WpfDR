@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using WpfDR.Data;
 using WpfDR.Model;
@@ -47,10 +48,11 @@ namespace WpfDR.Service
             db.SaveChanges();
         }
 
-        //public bool async AddRange(IEnumerable<T> itemList)
-        //{
-        //    await Set.AddRangeAsync(itemList);
-        //    return true;
-        //}
+        public async Task<bool> AddRange(IEnumerable<T> itemList)
+        {
+            await db.AddRangeAsync(itemList);
+            await db.SaveChangesAsync();
+            return true;
+        }
     }
 }

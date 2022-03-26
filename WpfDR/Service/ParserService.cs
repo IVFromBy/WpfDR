@@ -169,6 +169,123 @@ namespace WpfDR.Service
             }
         }
 
+        public async Task<List<MailItemDb>> ParseTextFileSqlAsync(string textFile, IProgress<double> Progress = null,
+            CancellationToken Cancel = default, MailItemDb brokenMail = null)
+        {
+            Regex regex = new Regex(regExpPattern, RegexOptions.Singleline);
+            var matches = regex.Matches(textFile);
+            int totalMatches = matches.Count;
+            bool IsNeedFixBrokenMail = brokenMail is not null;
+            var resList = new List<MailItemDb>();
+            int i = 0;
+            try
+            {
+
+                foreach (Match m in matches)
+                { // находим следующее совпадение
+                    Match nextV = m.NextMatch();
+
+                    if (IsNeedFixBrokenMail)
+                    {
+                        resList.Add(await Task.Run(() => ParseBrokenBodySql(textFile.Substring(0, m.Index), brokenMail)).ConfigureAwait(false));
+                        IsNeedFixBrokenMail = false;
+                    }
+
+                    Progress?.Report((double)i / totalMatches);
+                    // передаём на детальный разбор парсером одного сообщения
+                    resList.Add(await Task.Run(() => ParseBodySql(textFile.Substring(m.Index, nextV.Success ? nextV.Index - m.Index : textFile.Length - m.Index))).ConfigureAwait(false));
+                    i++;
+                    Cancel.ThrowIfCancellationRequested();
+                }
+                Progress?.Report(1);
+                return resList;
+            }
+            catch (Exception e)
+            {
+
+                MessageBox.Show($"Произошла на этапе парсинга тела! \n Ошибка:{e.Message}"
+                    , "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return resList;
+            }
+        }
+
+        private MailItemDb ParseBodySql(string inStr)
+        {
+            int contentPos = inStr.IndexOf("<span") == -1 ? inStr.IndexOf("<html") : inStr.IndexOf("<span");
+
+            string[] data = inStr.Substring(0, contentPos).Split('\t');
+            int bodyLength = inStr.Length;
+            string contentBody;
+            bool isEndOfFile = false;
+            var endofTheBody = inStr.Substring(bodyLength - tailLength, tailLength);
+
+            try
+            {
+                if (!endofTheBody.Contains("\t"))
+                {
+                    isEndOfFile = true;
+                    contentBody = inStr[contentPos..bodyLength];
+                }
+                else
+                {
+                    string[] endValues = endofTheBody.Split('\t');
+                    contentBody = inStr.Substring(contentPos, bodyLength - contentPos - (endofTheBody.Length - endofTheBody.IndexOf('\t')));
+                }
+
+                return new MailItemDb
+                (
+                    data[0],
+                    DateTime.ParseExact(data[2], "dd.MM.yyyy", null).ToString("dd.MM.yyyy"),
+                    data[3],
+                    data[4] ?? "",
+                    data[5],
+                    data[6],
+                    String.Concat(utf8Cod, contentBody),
+                    isEndOfFile
+                );
+
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show($"Произошла на этапе парсинга тела! \n Ошибка:{e.Message}"
+                    , "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return new MailItemDb();
+            }
+
+
+        }
+
+        private MailItemDb ParseBrokenBodySql(string inStr, MailItemDb brokenMail)
+        {
+            try
+            {
+
+                int bodyLength = inStr.Length;
+
+                var endofTheBody = inStr.Substring(bodyLength - tailLength, tailLength);
+
+                string[] endValues = endofTheBody.Split('\t');
+
+                MailItemDb fixedMail = new MailItemDb
+                (brokenMail.Mid,
+                    brokenMail.DateCreate,
+                    brokenMail.Subject,
+                    brokenMail.FromAbonent,
+                    brokenMail.ReplayTo,
+                    brokenMail.ToAbonent,
+                    string.Concat(brokenMail.Content, inStr.Substring(0, bodyLength - (endofTheBody.Length - endofTheBody.IndexOf('\t')))),
+                    false
+                );
+                return fixedMail;
+            }
+            catch (Exception e)
+            {
+
+                MessageBox.Show($"Произошла на этапе парсинга сломанного тела! \n Ошибка:{e.Message}"
+                                , "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return new MailItemDb();
+            }
+        }
 
     }
 }
