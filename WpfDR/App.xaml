@@ -4,7 +4,8 @@
              xmlns:local="clr-namespace:WpfDR"
              xmlns:vm="clr-namespace:WpfDR.ViewModels"
              xmlns:commands="clr-namespace:WpfDR.Commands"
-             StartupUri="MainWindow.xaml">
+             
+             >
     <Application.Resources>
         <commands:CloseAppCommand x:Key="CloseAppCommand"/>
         <vm:ViewModelLocator x:Key="Locator"/>

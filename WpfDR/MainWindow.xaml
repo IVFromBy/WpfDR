@@ -15,10 +15,15 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="Файл">
-                <MenuItem Header="Загрузить" Command="{Binding LoadFileCommand}"/>
+                <MenuItem Header="Загрузить из файла" Command="{Binding LoadFileCommand}"/>
                 <MenuItem Header="Очистить список" Command="{Binding ClearListCommand}"/>
                 <Separator/>
+                <MenuItem Header="Загрузить из базы" Command="{Binding LoadSqlCommand}"/>
+                <MenuItem Header="Очистить список из базы" Command="{Binding ClearSqlListCommand}"/>
+                <Separator/>
                 <MenuItem Header="Обработка файла" Command="{Binding RepackFile}"/>
+                <Separator/>
+                <MenuItem Header="Импортировать в базу" Command="{Binding ImportInToSqlCommand}"/>
                 <Separator/>
                 <MenuItem Header="Выход" Command="{StaticResource CloseAppCommand}"/>
             </MenuItem>
@@ -59,7 +64,6 @@
 
             </DockPanel>
         </GroupBox>
-
         <StatusBar DockPanel.Dock="Bottom" Height="30">
             <StatusBarItem  DockPanel.Dock="Right">
                 <ResizeGrip/>
@@ -81,6 +85,10 @@
                 <TextBlock Text="{Binding Status}"/>
             </StatusBarItem>
         </StatusBar>
+        <TabControl SelectedIndex="{Binding SelectedTabIndex}">
+            <TabItem Header="Работа с файлами">
+                <DockPanel>
+            
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -181,6 +189,76 @@
                 </TabItem>
             </TabControl>
         </Grid>
-
     </DockPanel>
+    </TabItem>
+            <TabItem Header="Работа с SQL">
+                <DockPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <DataGrid Name="SqlGrid" ItemsSource="{Binding SqlMailItems}" 
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          SelectedItem="{Binding SelectedSqlMail}"
+                          AlternatingRowBackground="#4C10F9EF"
+                      Grid.Column="0">
+                            <DataGrid.Resources>
+                                <Style BasedOn="{StaticResource {x:Type DataGridColumnHeader}}" TargetType="{x:Type DataGridColumnHeader}" >
+                                    <Setter Property="Margin" Value="-1,-1,0,0" />
+                                    <Setter Property="Height" Value="40" />
+                                    <Setter Property="Width" Value="auto"/>
+                                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                </Style>
+                            </DataGrid.Resources>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Отправитель" Binding="{Binding FromAbonent}"/>
+                                <DataGridTextColumn Header="Тема" Binding="{Binding Subject}"/>
+                                <DataGridTextColumn Header="Дата" Binding="{Binding DateCreate, StringFormat=dd-MM-yyyy}" />
+                                <DataGridTextColumn Header="Получатель" Binding="{Binding ToAbonent}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <GridSplitter Grid.Column="1" ShowsPreview="False" Width="5" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="LightGray" />
+                        <TabControl Grid.Column="2">
+                            <TabItem Header="Содержимое письма">
+                                <WebBrowser  wh:WebBrowserHelper.Body ="{Binding SelectedSqlMail.Content}"/>
+                            </TabItem>
+                            <TabItem Header="Исходный код сожержимого письма">
+                                <TextBox Text="{Binding SelectedSqlMail.Content}" TextWrapping="Wrap"/>
+                            </TabItem>
+                            <TabItem Header="Остальные значения письма">
+                                <ScrollViewer>
+                                    <StackPanel>
+                                        <StackPanel.Resources>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Margin" Value="4,0,0,0"/>
+                                            </Style>
+                                            <Style TargetType="TextBox">
+                                                <Setter Property="Margin" Value="4,0,4,5"/>
+                                            </Style>
+                                        </StackPanel.Resources>
+                                        <TextBlock Text="MID"/>
+                                        <TextBox Text="{Binding SelectedSqlMail.Mid}"/>
+                                        <TextBlock Text="DATE_CREATE"/>
+                                        <TextBox Text="{Binding SelectedSqlMail.DateCreate, StringFormat=dd-MM-yyyy}"/>
+                                        <TextBlock Text="SUBJECT"/>
+                                        <TextBox Text="{Binding SelectedSqlMail.Subject}"/>
+                                        <TextBlock Text="FROM_ABONENT"/>
+                                        <TextBox Text="{Binding SelectedSqlMail.FromAbonent}"/>
+                                        <TextBlock Text="REPLAY_TO"/>
+                                        <TextBox Text="{Binding SelectedSqlMail.ReplayTo}"/>
+                                        <TextBlock Text="TO_ABONENT"/>
+                                        <TextBox Text="{Binding SelectedSqlMail.ToAbonent}"/>
+                                    </StackPanel>
+                                </ScrollViewer>
+                            </TabItem>
+                        </TabControl>
+                    </Grid>
+                </DockPanel> 
+            </TabItem>
+    </TabControl>
+</DockPanel>
+    
 </Window>

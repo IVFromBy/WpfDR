@@ -28,7 +28,7 @@ namespace WpfDR.ViewModels
         private string _ResultFilePath;
         public string ResultFilePath { get => _ResultFilePath; set => Set(ref _ResultFilePath, value); }
 
-        private string _ReadRowCount = "250000";
+        private string _ReadRowCount = "1000000";
         public string ReadRowCount { get => _ReadRowCount; set => Set(ref _ReadRowCount, value); }
 
         private double _ParseProgress;
@@ -39,9 +39,6 @@ namespace WpfDR.ViewModels
 
         private bool _EnableBtn = true;
         public bool btnEnable { get => _EnableBtn; set => Set(ref _EnableBtn, value); }
-
-        private bool _UseEcoMode = false;
-        public bool UseEcoMode { get => _UseEcoMode; set => Set(ref _UseEcoMode, value); }
 
         #region comands
         private ICommand _SetSourceFilePath;
@@ -87,39 +84,34 @@ namespace WpfDR.ViewModels
             int.TryParse(_ReadRowCount, out readRowCount);
             btnEnable = false;
 
-            LinkedList<string> Lines = new LinkedList<string>();
+            var Lines = new string[readRowCount];
             try
             {
                 TotalProgress = true;
                 using (StreamReader r = new StreamReader(new BufferedStream(File.OpenRead(_SourceFilePath), 1024 * 1024)))
                 {
                     int count = 0;
-                    using (FileStream fstream = new FileStream(_ResultFilePath, FileMode.Append))
-                    {   // Запись шапки
-                        byte[] buffer = Encoding.UTF8.GetBytes(r.ReadLine() + "\n");
-                        await fstream.WriteAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
-                    }
+
+
                     while (r.EndOfStream != true)
                     {
-                        Lines.AddLast(r.ReadLine());
+                        Lines[count] = r.ReadLine();
                         count++;
-
                         if (count == readRowCount)
                         {
                             count = 0;
                             await RepackBlock(Lines).ConfigureAwait(false);
-                            Lines.Clear();
+                            Array.Clear(Lines, 0, readRowCount);
+
                         }
+
                     }
                     if (count > 0 && count <= readRowCount)
                     {
                         count = 0;
                         await RepackBlock(Lines).ConfigureAwait(false);
-                        Lines.Clear();
+                        Array.Clear(Lines, 0, readRowCount);
                     }
-
-                    if (!_UseEcoMode)
-                        SaveRepackBlock();
 
                 }
 
@@ -141,29 +133,27 @@ namespace WpfDR.ViewModels
             }
         }
 
-        private async Task RepackBlock(LinkedList<string> lines)
+        private async Task RepackBlock(string[] lines)
         {
-            string text = string.Join("\n", lines.ToArray());
+            string text = string.Join("\n", lines);
 
             var progress = new Progress<double>(p => ParseProgress = p);
             try
             {
 
-            var res = await _Parser.ParseTextFileAsync(text, progress, brokenMail: _BrokeMaill).ConfigureAwait(false);
-            _BrokeMaill = null;
+                var res = await _Parser.ParseTextFileAsync(text, progress, brokenMail: _BrokeMaill).ConfigureAwait(false);
+                _BrokeMaill = null;
 
-            foreach (MailItem item in res.GroupBy(g => new { g.FromAbonent, g.Subject, g.DateCreate, g.Content }).Select(g => g.First()))
-            {
-                if (item.Subject != "Уведомление о доставке")
+                foreach (MailItem item in res.GroupBy(g => new { g.FromAbonent, g.Subject, g.DateCreate, g.Content }).Select(g => g.First()))
                 {
-                    if (item.IsEndOfFile)
-                        _BrokeMaill = item;
-                    else
-                        _MailItems.Add(item);
+                    if (item.Subject != "Уведомление о доставке")
+                    {
+                        if (item.IsEndOfFile)
+                            _BrokeMaill = item;
+                        else
+                            _MailItems.Add(item);
+                    }
                 }
-            }
-
-            if (_UseEcoMode)
                 SaveRepackBlock();
             }
             catch (Exception e)
