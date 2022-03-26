@@ -19,7 +19,7 @@
                 <MenuItem Header="Очистить список" Command="{Binding ClearListCommand}"/>
                 <Separator/>
                 <MenuItem Header="Загрузить из базы" Command="{Binding LoadSqlCommand}"/>
-                <MenuItem Header="Очистить список из базы" Command="{Binding ClearListCommand}"/>
+                <MenuItem Header="Очистить список из базы" Command="{Binding ClearSqlListCommand}"/>
                 <Separator/>
                 <MenuItem Header="Обработка файла" Command="{Binding RepackFile}"/>
                 <Separator/>
@@ -64,11 +64,6 @@
 
             </DockPanel>
         </GroupBox>
-
-        <TabControl SelectedIndex="{Binding SelectedTabIndex}">
-            <TabItem Header="Работа с файлами">
-                <DockPanel>
-    
         <StatusBar DockPanel.Dock="Bottom" Height="30">
             <StatusBarItem  DockPanel.Dock="Right">
                 <ResizeGrip/>
@@ -90,6 +85,10 @@
                 <TextBlock Text="{Binding Status}"/>
             </StatusBarItem>
         </StatusBar>
+        <TabControl SelectedIndex="{Binding SelectedTabIndex}">
+            <TabItem Header="Работа с файлами">
+                <DockPanel>
+            
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -241,7 +240,7 @@
                                             </Style>
                                         </StackPanel.Resources>
                                         <TextBlock Text="MID"/>
-                                        <TextBox Text="{Binding SelectedSqlMail.MID}"/>
+                                        <TextBox Text="{Binding SelectedSqlMail.Mid}"/>
                                         <TextBlock Text="DATE_CREATE"/>
                                         <TextBox Text="{Binding SelectedSqlMail.DateCreate, StringFormat=dd-MM-yyyy}"/>
                                         <TextBlock Text="SUBJECT"/>
@@ -249,7 +248,7 @@
                                         <TextBlock Text="FROM_ABONENT"/>
                                         <TextBox Text="{Binding SelectedSqlMail.FromAbonent}"/>
                                         <TextBlock Text="REPLAY_TO"/>
-                                        <TextBox Text="{Binding SelectedSqlMail.ReplyTo}"/>
+                                        <TextBox Text="{Binding SelectedSqlMail.ReplayTo}"/>
                                         <TextBlock Text="TO_ABONENT"/>
                                         <TextBox Text="{Binding SelectedSqlMail.ToAbonent}"/>
                                     </StackPanel>
