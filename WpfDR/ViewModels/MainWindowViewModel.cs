@@ -111,6 +111,38 @@ namespace WpfDR.ViewModels
         private ICommand _loadSqlCommand;
         private bool CanLoadSqlCommand(object o) => true;
         public ICommand LoadSqlCommand => _loadSqlCommand ??= new LambdaCommand(OnLoadSql, CanLoadSqlCommand);
+        
+        private ICommand _SqlDeleteAllCommand;
+        private bool CanSqlDeleteAllCommand(object o) => true;
+        public ICommand SqlDeleteAllCommand => _SqlDeleteAllCommand ??= new LambdaCommand(OnDeleteAllSql, CanSqlDeleteAllCommand);
+        
+        private ICommand _SqlAddTestRowCommand;
+        private bool CanSqlAddTestRowCommand(object o) => true;
+        public ICommand SqlAddTestRowCommand => _SqlAddTestRowCommand ??= new LambdaCommand(OnAddTestRowSql, CanSqlAddTestRowCommand);
+
+        private void OnAddTestRowSql(object obj)
+        {
+            var testRow = new MailItemDb { Mid = "test",
+                Content="<html> <d3>test row</d3></html>",
+                FromAbonent="test",
+                Subject="test",
+                IsBroken=false,
+                ToAbonent="to test",
+                ReplayTo="test",
+                DateCreate="01.01.1991"
+            };
+
+            _repository.Add(testRow);
+            Status = "Добавлена тестовая запись";
+        }
+
+        private void OnDeleteAllSql(object obj)
+        {
+            Status = "Начал очищать базу";
+            _repository.DeleteAll();
+            SqlMailItems.Clear();
+            Status = "База очищена";
+        }
 
         private void OnShowRepackFile(object obj)
         {

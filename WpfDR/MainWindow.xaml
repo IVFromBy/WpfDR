@@ -18,12 +18,18 @@
                 <MenuItem Header="Загрузить из файла" Command="{Binding LoadFileCommand}"/>
                 <MenuItem Header="Очистить список" Command="{Binding ClearListCommand}"/>
                 <Separator/>
-                <MenuItem Header="Загрузить из базы" Command="{Binding LoadSqlCommand}"/>
-                <MenuItem Header="Очистить список из базы" Command="{Binding ClearSqlListCommand}"/>
-                <Separator/>
                 <MenuItem Header="Обработка файла" Command="{Binding RepackFile}"/>
                 <Separator/>
-                <MenuItem Header="Импортировать в базу" Command="{Binding ImportInToSqlCommand}"/>
+                <MenuItem Header="Работа с БД">
+                    <MenuItem Header="Загрузить из БД" Command="{Binding LoadSqlCommand}"/>
+                    <Separator/>
+                    <MenuItem Header="Добавить тестовую строку в БД" Command="{Binding SqlAddTestRowCommand}"/>
+                    <MenuItem Header="Удалить всё из БД" Command="{Binding SqlDeleteAllCommand}"/>
+                    <Separator/>
+                    <MenuItem Header="Очистить список из БД" Command="{Binding ClearSqlListCommand}"/>
+                    <Separator/>
+                    <MenuItem Header="Импортировать в БД" Command="{Binding ImportInToSqlCommand}"/>
+                </MenuItem>
                 <Separator/>
                 <MenuItem Header="Выход" Command="{StaticResource CloseAppCommand}"/>
             </MenuItem>
