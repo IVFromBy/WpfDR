@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using WpfDR.Data;
@@ -20,8 +18,9 @@ namespace WpfDR.Service
 
         public int Add(T item)
         {
-            Set.Add(item);
 
+            db.Entry(item).State = EntityState.Added;
+            db.SaveChanges();
             return item.id;
         }
 
@@ -52,6 +51,13 @@ namespace WpfDR.Service
         {
             await db.AddRangeAsync(itemList);
             await db.SaveChangesAsync();
+            return true;
+        }
+
+        public bool DeleteAll()
+        {
+            db.RemoveRange(Set);
+            db.SaveChanges();
             return true;
         }
     }

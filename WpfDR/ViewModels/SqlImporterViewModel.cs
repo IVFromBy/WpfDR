@@ -23,7 +23,7 @@ namespace WpfDR.ViewModels
         private MailItemDb _BrokeMaill { get; set; }
         public List<MailItemDb> _MailItems { get; } = new();
 
-        private string _SourceFilePath;
+        private string _SourceFilePath = "";
         public string SourceFilePath { get => _SourceFilePath; set => Set(ref _SourceFilePath, value); }
 
         private string _ImportStatus;
@@ -34,6 +34,9 @@ namespace WpfDR.ViewModels
 
         private bool _EnableBtn = true;
         public bool btnEnable { get => _EnableBtn; set => Set(ref _EnableBtn, value); }
+        
+        private string _ReadRowCount = "1000000";
+        public string ReadRowCount { get => _ReadRowCount; set => Set(ref _ReadRowCount, value); }
 
         #region comands
         private ICommand _SetSourceFilePath;
@@ -59,7 +62,8 @@ namespace WpfDR.ViewModels
 
         private async void OnStartImport(object obj)
         {
-            const int readRowCount = 1000000;
+            int readRowCount;
+            int.TryParse(_ReadRowCount, out readRowCount);
             const int fileBuff = 1024 * 1024;
             btnEnable = false;
 
@@ -93,12 +97,12 @@ namespace WpfDR.ViewModels
 
                 }
 
-                MessageBox.Show($"Преобразование окончено", "Результат", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"Импорт окончено", "Результат", MessageBoxButton.OK, MessageBoxImage.Information);
                 ImportStatus = "";
             }
             catch (Exception e)
             {
-                MessageBox.Show($" Ошибка:{e.Message}", "Ошибка преобразования", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($" Ошибка:{e.Message}", "Ошибка импорта", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
@@ -137,7 +141,7 @@ namespace WpfDR.ViewModels
             catch (Exception e)
             {
 
-                MessageBox.Show($" Ошибка:{e.Message}", "Ошибка преобразования R", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($" Ошибка:{e.Message}", "Ошибка импорта R", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
