@@ -111,25 +111,27 @@ namespace WpfDR.ViewModels
         private ICommand _loadSqlCommand;
         private bool CanLoadSqlCommand(object o) => true;
         public ICommand LoadSqlCommand => _loadSqlCommand ??= new LambdaCommand(OnLoadSql, CanLoadSqlCommand);
-        
+
         private ICommand _SqlDeleteAllCommand;
         private bool CanSqlDeleteAllCommand(object o) => true;
         public ICommand SqlDeleteAllCommand => _SqlDeleteAllCommand ??= new LambdaCommand(OnDeleteAllSql, CanSqlDeleteAllCommand);
-        
+
         private ICommand _SqlAddTestRowCommand;
         private bool CanSqlAddTestRowCommand(object o) => true;
         public ICommand SqlAddTestRowCommand => _SqlAddTestRowCommand ??= new LambdaCommand(OnAddTestRowSql, CanSqlAddTestRowCommand);
 
         private void OnAddTestRowSql(object obj)
         {
-            var testRow = new MailItemDb { Mid = "test",
-                Content="<html> <d3>test row</d3></html>",
-                FromAbonent="test",
-                Subject="test",
-                IsBroken=false,
-                ToAbonent="to test",
-                ReplayTo="test",
-                DateCreate="01.01.1991"
+            var testRow = new MailItemDb
+            {
+                Mid = "test",
+                Content = "<html> <d3>test row</d3></html>",
+                FromAbonent = "test",
+                Subject = "test",
+                IsBroken = false,
+                ToAbonent = "to test",
+                ReplayTo = "test",
+                DateCreate = "01.01.1991"
             };
 
             _repository.Add(testRow);
@@ -174,7 +176,7 @@ namespace WpfDR.ViewModels
 
 
         private void OnClearList(object obj)
-        {            
+        {
             App.Current.Dispatcher.Invoke((Action)delegate
             {
                 totalLoaded = 0;
@@ -250,7 +252,7 @@ namespace WpfDR.ViewModels
             _repository = repository;
             _sqlImport = sqlImport;
             _MailItemsListView = System.Windows.Data.CollectionViewSource.GetDefaultView(MailItems);
-            _MailItemsListView.Filter = MailItemFilter;
+            _SqlMailItemsListView = System.Windows.Data.CollectionViewSource.GetDefaultView(SqlMailItems);
         }
 
         private async void OnLoadFile(object o)
@@ -263,6 +265,9 @@ namespace WpfDR.ViewModels
 
             if (openFileDialog.ShowDialog() == true)
             {
+                if (MailItems.Count() > 0)
+                    _MailItemsListView.Filter -= MailItemFilter;
+
                 int FileCount = 1;
                 _FlWin.FileList.Clear();
                 _FlWin.ModalResult = false;
@@ -350,20 +355,20 @@ namespace WpfDR.ViewModels
 
             ParseProgress = 0;
             ShowProgressBar = false;
-
+            _MailItemsListView.Filter = MailItemFilter;
             Status = $"Обработано {totalLoaded}; Удалено уведомлений о доставке {notifyDelivery}; Дубликаты: {totalLoaded - notifyDelivery - MailItems.Count}; Показано {MailItems.Count}";
         }
 
         private void OnLoadSql(object obj)
-        {            
-            //_SqlMailItemsListView = System.Windows.Data.CollectionViewSource.GetDefaultView(null);
+        {
+            if (SqlMailItems.Count() > 0)
+                _SqlMailItemsListView.Filter -= MailItemFilter;
             SqlMailItems.Clear();
 
             foreach (var mail in _repository.GetAll())
                 SqlMailItems.Add(mail);
 
             SelectedSqlMail = SqlMailItems.FirstOrDefault();
-            _SqlMailItemsListView = System.Windows.Data.CollectionViewSource.GetDefaultView(SqlMailItems);
             _SqlMailItemsListView.Filter = MailItemFilter;
             Status = $"Прочитано {SqlMailItems.Count()} писем из базы";
         }
